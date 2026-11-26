@@ -1,0 +1,6 @@
+# Copy to .dev.vars for local development (it is gitignored).
+AUTH_SECRET=local-development-secret-change-me
+# Print sign-in codes in the `pnpm dev` terminal instead of emailing them.
+DEV_LOG_CODES=true
+# To send real emails locally instead, set a Resend key and remove DEV_LOG_CODES.
+# RESEND_API_KEY=re_...
