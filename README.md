@@ -49,9 +49,11 @@ notifications a few minutes before each activity.
 ```
 routine-builder/
 ├── apps/
-│   └── web/                 React app: routes, state, storage, notifications
+│   ├── web/                 React app: routes, state, storage, notifications
+│   └── api/                 Cloudflare Worker: Hono API under /api, serves the web app
 ├── packages/
 │   ├── domain/              @routine-builder/domain: schemas and pure logic
+│   ├── db/                  @routine-builder/db: Drizzle schema and D1 migrations
 │   └── ui/                  @routine-builder/ui: shadcn components and theme
 └── docs/plans/              Design plans written before each feature
 ```
@@ -64,6 +66,10 @@ routine-builder/
   from it instead of writing one-off versions.
 - **`apps/web`** wires them together: TanStack Router routes, a React context over a
   storage repository, and the reminder loop.
+- **`apps/api`** is a single Cloudflare Worker that answers `/api/*` with a Hono app and
+  serves the built web app for everything else, so both share one origin.
+- **`packages/db`** holds the Drizzle schema for Cloudflare D1 (SQLite) and the SQL
+  migrations generated from it.
 
 A few decisions worth calling out:
 
@@ -77,7 +83,8 @@ A few decisions worth calling out:
   shows each reminder.
 
 The full reasoning is in [Plan 001](docs/plans/001-routine-builder-mvp.md) (product and
-design) and [Plan 002](docs/plans/002-monorepo-and-shadcn.md) (monorepo and UI).
+design), [Plan 002](docs/plans/002-monorepo-and-shadcn.md) (monorepo and UI) and
+[Plan 003](docs/plans/003-free-backend-and-push.md) (free backend and push reminders).
 
 ## Getting started
 
@@ -88,17 +95,21 @@ version pinned in `package.json`.
 git clone https://github.com/Naipei-Lantei7/routine-builder.git
 cd routine-builder
 pnpm install
-pnpm dev          # http://localhost:5173
+pnpm dev          # app on http://localhost:5173, API on http://localhost:8787
 ```
 
-| Command                                  | What it does                                  |
-| ---------------------------------------- | --------------------------------------------- |
-| `pnpm dev`                               | Start the app in development mode             |
-| `pnpm check`                             | Lint, typecheck, test and build every package |
-| `pnpm test`                              | Run all tests                                 |
-| `pnpm --filter @routine-builder/web dev` | Run a command in one package                  |
-| `pnpm format`                            | Format the repo with Prettier                 |
-| `pnpm deploy:web`                        | Build the web app and deploy it to Cloudflare |
+`pnpm dev` starts Vite and the Worker together. Vite forwards `/api` requests to the
+Worker, which uses a local SQLite file for D1 and applies migrations on start.
+
+| Command                                      | What it does                                    |
+| -------------------------------------------- | ----------------------------------------------- |
+| `pnpm dev`                                   | Start the app in development mode               |
+| `pnpm check`                                 | Lint, typecheck, test and build every package   |
+| `pnpm test`                                  | Run all tests                                   |
+| `pnpm --filter @routine-builder/web dev`     | Run a command in one package                    |
+| `pnpm format`                                | Format the repo with Prettier                   |
+| `pnpm deploy:app`                            | Build the app, migrate D1 and deploy the Worker |
+| `pnpm --filter @routine-builder/db generate` | Create a migration after changing the schema    |
 
 ## Testing
 
@@ -119,18 +130,24 @@ offline.
 
 ## Deployment
 
-The app is hosted on Cloudflare's free plan as static assets served by a Worker
-(`apps/web/wrangler.jsonc`). Unknown paths serve `index.html`, so links like `/routines`
-work on reload, and `public/_headers` sets caching: the service worker and manifest are
-always re-checked, hashed build files are cached for a year.
+Everything runs on Cloudflare's free plan as one Worker (`apps/api/wrangler.jsonc`): the
+API under `/api`, the D1 database, and the built web app as static assets. Unknown paths
+serve `index.html`, so links like `/routines` work on reload, and `apps/web/public/_headers`
+sets caching: the service worker and manifest are always re-checked, hashed build files are
+cached for a year.
+
+One-time setup:
 
 ```bash
-pnpm --filter @routine-builder/web exec wrangler login   # once, opens Cloudflare in the browser
-pnpm deploy:web                                          # build and upload
+pnpm --filter @routine-builder/api exec wrangler login
+pnpm --filter @routine-builder/api exec wrangler d1 create routine-builder
 ```
 
-To deploy on every push to `main` instead, connect the repository in the Cloudflare
-dashboard (Workers Builds) and point it at `apps/web`.
+Copy the `database_id` it prints into `apps/api/wrangler.jsonc`. Then, for each release:
+
+```bash
+pnpm deploy:app   # builds the web app, applies new D1 migrations, deploys the Worker
+```
 
 ## How this project is built
 
