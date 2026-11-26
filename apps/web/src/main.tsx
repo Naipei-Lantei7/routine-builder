@@ -1,16 +1,18 @@
+import { RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
-import { AppStateProvider } from './state/AppStateProvider.tsx'
-import { createLocalStorageRepository } from './storage/localStorageRepository.ts'
+import { createAppRouter } from './router'
+import { AppStateProvider } from './state/AppStateProvider'
+import { createLocalStorageRepository } from './storage/localStorageRepository'
 
 const repository = createLocalStorageRepository()
+const router = createAppRouter()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppStateProvider repository={repository}>
-      <App />
+      <RouterProvider router={router} />
     </AppStateProvider>
   </StrictMode>,
 )

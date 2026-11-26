@@ -14,10 +14,15 @@
   },
   "dependencies": {
     "@routine-builder/domain": "workspace:*",
+    "@routine-builder/ui": "workspace:*",
+    "@tanstack/react-router": "^1.170.46",
+    "lucide-react": "^1.81.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@tanstack/router-plugin": "^1.169.0",
     "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.13",
@@ -26,6 +31,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "jsdom": "^29.1.1",
+    "tailwindcss": "^4.3.5",
     "typescript": "~7.0.2",
     "vite": "^8.3.6",
     "vitest": "^5.1.2"

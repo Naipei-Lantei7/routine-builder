@@ -13,6 +13,13 @@
       "rules": {
         "react/only-export-components": "off"
       }
+    },
+    {
+      // TanStack Router route files export `Route` alongside their page components.
+      "files": ["apps/*/src/routes/**"],
+      "rules": {
+        "react/only-export-components": "off"
+      }
     }
   ]
 }
