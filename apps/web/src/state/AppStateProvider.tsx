@@ -41,6 +41,16 @@ export function AppStateProvider({ repository, children }: Props) {
     [repository],
   )
 
+  const refresh = useCallback(() => {
+    const result = repository.load()
+    // Unreadable or blocked storage: keep what this tab already has.
+    if (result.status === 'ok' || result.status === 'empty') {
+      stateRef.current = result.state
+      setState(result.state)
+    }
+    return stateRef.current
+  }, [repository])
+
   const value = useMemo<AppStateValue>(
     () => ({
       state,
@@ -48,8 +58,9 @@ export function AppStateProvider({ repository, children }: Props) {
       backupKey: initial.status === 'recovered' ? initial.backupKey : null,
       saveError,
       update,
+      refresh,
     }),
-    [state, initial, saveError, update],
+    [state, initial, saveError, update, refresh],
   )
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>

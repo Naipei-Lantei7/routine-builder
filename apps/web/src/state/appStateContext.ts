@@ -12,6 +12,8 @@ export interface AppStateValue {
   saveError: string | null
   // Applies a change and saves it.
   update: (updater: (state: AppState) => AppState) => void
+  // Re-reads stored state (picking up other tabs' changes immediately) and returns it.
+  refresh: () => AppState
 }
 
 export const AppStateContext = createContext<AppStateValue | null>(null)

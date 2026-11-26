@@ -59,11 +59,22 @@ export function createLocalStorageRepository(
   function backup(raw: string): string | null {
     const key = `${BACKUP_KEY_PREFIX}${now().toISOString()}`
     try {
+      // Loading the same bad data again (another tab, or a later refresh) reuses its backup.
+      const existing = existingBackupOf(raw)
+      if (existing) return existing
       storage.setItem(key, raw)
       return key
     } catch {
       return null
     }
+  }
+
+  function existingBackupOf(raw: string): string | null {
+    for (let i = 0; i < storage.length; i++) {
+      const key = storage.key(i)
+      if (key?.startsWith(BACKUP_KEY_PREFIX) && storage.getItem(key) === raw) return key
+    }
+    return null
   }
 
   function save(state: AppState): void {
