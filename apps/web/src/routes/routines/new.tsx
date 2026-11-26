@@ -7,5 +7,5 @@ export const Route = createFileRoute('/routines/new')({
 
 function NewRoutinePage() {
   const navigate = useNavigate()
-  return <RoutineEditor routineId={null} onDone={() => navigate({ to: '/' })} />
+  return <RoutineEditor routineId={null} onDone={() => navigate({ to: '/routines' })} />
 }

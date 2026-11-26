@@ -90,11 +90,12 @@ pnpm turbo run lint typecheck test build
 
 ## 5. Routes
 
-| URL                         | Screen                          |
-| --------------------------- | ------------------------------- |
-| `/`                         | Routine list (Today view later) |
-| `/routines/new`             | Create routine                  |
-| `/routines/$routineId/edit` | Edit routine                    |
+| URL                         | Screen                                  |
+| --------------------------- | --------------------------------------- |
+| `/`                         | Today: today's activities, mark as done |
+| `/routines`                 | Routine list                            |
+| `/routines/new`             | Create routine                          |
+| `/routines/$routineId/edit` | Edit routine                            |
 
 An unknown `routineId` shows the existing "Routine not found" state.
 

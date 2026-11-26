@@ -112,7 +112,7 @@ export function RoutineEditor({ routineId, onDone, newId = () => crypto.randomUU
     <section aria-labelledby="editor-heading" className="space-y-6">
       <div className="space-y-2">
         <Button variant="link" asChild className="h-auto px-0 text-muted-foreground">
-          <Link to="/">
+          <Link to="/routines">
             <ArrowLeft aria-hidden="true" />
             Routines
           </Link>
