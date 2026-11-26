@@ -125,6 +125,18 @@ export interface DraftContext {
   newId: () => string
 }
 
+// Validation never depends on the id or timestamps, so fixed placeholders are fine.
+const VALIDATION_CONTEXT: DraftContext = {
+  now: new Date(0),
+  newId: () => '00000000-0000-4000-8000-000000000000',
+}
+
+/** Field errors for a draft, without building a Routine. Empty when valid. */
+export function validateDraft(draft: RoutineDraft): DraftErrors {
+  const result = draftToRoutine(draft, VALIDATION_CONTEXT)
+  return result.ok ? {} : result.errors
+}
+
 /** Validates a draft and turns it into a Routine ready to save. */
 export function draftToRoutine(draft: RoutineDraft, context: DraftContext): DraftResult {
   const errors: DraftErrors = {}
