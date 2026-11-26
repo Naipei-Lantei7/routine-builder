@@ -88,6 +88,21 @@ describe('localStorage repository: invalid stored data', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe(raw)
   })
 
+  it('reuses the existing backup when the same bad data is loaded again', () => {
+    localStorage.setItem(STORAGE_KEY, '{oops')
+    const first = createRepo().load()
+    const later = createLocalStorageRepository({
+      storage: localStorage,
+      now: () => new Date(NOW.getTime() + 60_000),
+    }).load()
+
+    expect(later).toMatchObject({
+      status: 'recovered',
+      backupKey: (first as { backupKey: string }).backupKey,
+    })
+    expect(Object.keys(localStorage).filter((k) => k.startsWith(BACKUP_KEY_PREFIX))).toHaveLength(1)
+  })
+
   it('still recovers when the backup cannot be written', () => {
     localStorage.setItem(STORAGE_KEY, '{oops')
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
