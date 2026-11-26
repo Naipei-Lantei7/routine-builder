@@ -2,8 +2,10 @@ import { Button } from '@routine-builder/ui/components/button'
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { ListChecks } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { ReminderBanner } from '../components/layout/ReminderBanner'
 import { StorageNotice } from '../components/layout/StorageNotice'
 import { ThemeToggle } from '../components/layout/ThemeToggle'
+import { RemindersProvider } from '../notifications/RemindersProvider'
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -12,29 +14,32 @@ export const Route = createRootRoute({
 
 function RootLayout() {
   return (
-    <div className="min-h-svh">
-      <header className="border-b">
-        <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
-          <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center gap-2 font-semibold">
-              <ListChecks className="size-5" aria-hidden="true" />
-              <h1 className="sr-only text-base sm:not-sr-only">Routine Builder</h1>
-            </Link>
-            <nav aria-label="Main" className="flex items-center gap-1">
-              <NavLink to="/" exact>
-                Today
-              </NavLink>
-              <NavLink to="/routines">Routines</NavLink>
-            </nav>
+    <RemindersProvider>
+      <div className="min-h-svh">
+        <header className="border-b">
+          <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
+            <div className="flex items-center gap-6">
+              <Link to="/" className="flex items-center gap-2 font-semibold">
+                <ListChecks className="size-5" aria-hidden="true" />
+                <h1 className="sr-only text-base sm:not-sr-only">Routine Builder</h1>
+              </Link>
+              <nav aria-label="Main" className="flex items-center gap-1">
+                <NavLink to="/" exact>
+                  Today
+                </NavLink>
+                <NavLink to="/routines">Routines</NavLink>
+              </nav>
+            </div>
+            <ThemeToggle />
           </div>
-          <ThemeToggle />
-        </div>
-      </header>
-      <main className="mx-auto max-w-2xl px-4 py-8">
-        <StorageNotice />
-        <Outlet />
-      </main>
-    </div>
+        </header>
+        <main className="mx-auto max-w-2xl px-4 py-8">
+          <StorageNotice />
+          <ReminderBanner />
+          <Outlet />
+        </main>
+      </div>
+    </RemindersProvider>
   )
 }
 

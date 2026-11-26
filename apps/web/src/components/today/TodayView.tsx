@@ -9,6 +9,7 @@ import { Link } from '@tanstack/react-router'
 import { Bell, CalendarCheck, CalendarClock, Plus } from 'lucide-react'
 import { useNow } from '../../hooks/useNow'
 import { EmptyState } from '../layout/EmptyState'
+import { ReminderControls } from './ReminderControls'
 import { useAppState } from '../../state/appStateContext'
 import { reminderLabel } from '../routines/reminderOptions'
 
@@ -53,6 +54,8 @@ export function TodayView() {
           </p>
         )}
       </div>
+
+      {state.routines.length > 0 && <ReminderControls />}
 
       {items.length > 0 && (
         <Progress
