@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { deleteRoutine, setRoutineEnabled, upsertRoutine } from './appState'
+import { deleteRoutine, setActivityDone, setRoutineEnabled, upsertRoutine } from './appState'
 import { createEmptyState, type AppState, type Routine } from './schema'
 
 const routine = (id: string, name: string): Routine => ({
@@ -56,5 +56,32 @@ describe('setRoutineEnabled', () => {
   it('leaves the routine untouched when the value does not change', () => {
     const state = stateWith(a)
     expect(setRoutineEnabled(state, a.id, true, NOW).routines[0]).toBe(a)
+  })
+})
+
+describe('setActivityDone', () => {
+  const target = {
+    routineId: a.id,
+    activityId: '33333333-3333-4333-8333-333333333333',
+    date: '2026-11-26',
+  }
+
+  it('adds a completion with the time it was completed', () => {
+    const next = setActivityDone(stateWith(a), target, true, NOW)
+    expect(next.completions).toEqual([{ ...target, completedAt: NOW.toISOString() }])
+  })
+
+  it('removes the completion when unticked', () => {
+    const ticked = setActivityDone(stateWith(a), target, true, NOW)
+    expect(setActivityDone(ticked, target, false, NOW).completions).toEqual([])
+  })
+
+  it('is idempotent and leaves other days alone', () => {
+    const ticked = setActivityDone(stateWith(a), target, true, NOW)
+    expect(setActivityDone(ticked, target, true, NOW)).toBe(ticked)
+
+    const otherDay = setActivityDone(ticked, { ...target, date: '2026-11-25' }, true, NOW)
+    const unticked = setActivityDone(otherDay, target, false, NOW)
+    expect(unticked.completions.map((c) => c.date)).toEqual(['2026-11-25'])
   })
 })

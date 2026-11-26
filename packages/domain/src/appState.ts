@@ -1,4 +1,4 @@
-import type { AppState, Routine } from './schema'
+import type { AppState, Completion, DateKey, Routine } from './schema'
 
 // Adds the routine, or replaces the one with the same id in place.
 export function upsertRoutine(state: AppState, routine: Routine): AppState {
@@ -28,5 +28,31 @@ export function setRoutineEnabled(
     routines: state.routines.map((r) =>
       r.id === id && r.enabled !== enabled ? { ...r, enabled, updatedAt: now.toISOString() } : r,
     ),
+  }
+}
+
+export interface CompletionTarget {
+  routineId: string
+  activityId: string
+  date: DateKey
+}
+
+// Marks an activity done or not done for one day. Idempotent either way.
+export function setActivityDone(
+  state: AppState,
+  target: CompletionTarget,
+  done: boolean,
+  now: Date,
+): AppState {
+  const matches = (c: Completion) =>
+    c.routineId === target.routineId && c.activityId === target.activityId && c.date === target.date
+  const exists = state.completions.some(matches)
+
+  if (done === exists) return state
+  return {
+    ...state,
+    completions: done
+      ? [...state.completions, { ...target, completedAt: now.toISOString() }]
+      : state.completions.filter((c) => !matches(c)),
   }
 }
