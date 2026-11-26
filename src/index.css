@@ -5,6 +5,10 @@
   --surface: #f6f8fa;
   --border: #d1d9e0;
   --accent: #0b6bcb;
+  --danger: #cf222e;
+  --danger-bg: #ffebe9;
+  --warning: #9a6700;
+  --warning-bg: #fff8c5;
 
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
@@ -21,6 +25,10 @@
     --surface: #151b23;
     --border: #3d444d;
     --accent: #4493f8;
+    --danger: #f85149;
+    --danger-bg: #2d1214;
+    --warning: #d29922;
+    --warning-bg: #272115;
   }
 }
 
