@@ -15,7 +15,7 @@
     "check": "turbo run lint typecheck test build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "deploy:web": "pnpm --filter @routine-builder/web run deploy"
+    "deploy:app": "pnpm --filter @routine-builder/web build && pnpm --filter @routine-builder/api run release"
   },
   "devDependencies": {
     "oxlint": "^1.90.0",

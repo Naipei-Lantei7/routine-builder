@@ -4,3 +4,4 @@ node_modules
 .turbo
 pnpm-lock.yaml
 routeTree.gen.ts
+packages/db/migrations
