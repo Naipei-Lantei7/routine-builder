@@ -1,8 +1,8 @@
-# RFC 0001: Routine Builder MVP and Reminders
+# Plan 001: Routine Builder MVP and Reminders
 
 | Field   | Value                                 |
 | ------- | ------------------------------------- |
-| Status  | Draft                                 |
+| Status  | Accepted                              |
 | Author  | naipei                                |
 | Created | 2026-11-26                            |
 | Scope   | MVP (client only) + Stage 2 (backend) |
@@ -15,7 +15,7 @@ each one applies to, and adds timed activities ("07:30 Stretch", "08:00 Leave
 for work"). The app shows today's activities in time order, lets the user tick
 them off, and reminds them before each activity starts.
 
-This RFC defines the MVP, which runs entirely in the browser, and the path to a
+This plan defines the MVP, which runs entirely in the browser, and the path to a
 later backend that delivers reminders even when the app is closed.
 
 ## 2. Motivation
@@ -80,6 +80,9 @@ later backend that delivers reminders even when the app is closed.
 | Hosting    | Vercel                                               | Free, preview deploy per PR                         |
 
 ### 5.2 Architecture
+
+> Superseded by [Plan 002](002-monorepo-and-shadcn.md), which moves this
+> code into a pnpm + Turborepo monorepo. The layering below still applies.
 
 All business logic lives in plain TypeScript modules with no React imports.
 Components call into them. This keeps the logic unit-testable and lets the
@@ -287,7 +290,7 @@ One branch and one PR per item, Conventional Commits, squash-merge into
 
 | PR  | Branch                | Contents                                                                  |
 | --- | --------------------- | ------------------------------------------------------------------------- |
-| 0   | `docs/rfc-0001`       | This RFC                                                                  |
+| 0   | `docs/rfc-0001`       | This plan                                                                 |
 | 1   | `chore/setup`         | Vite + React + TS, oxlint, Prettier, Vitest, GitHub Actions               |
 | 2   | `feat/routine-model`  | Zod schemas, time helpers, repository, migrations, tests                  |
 | 3   | `feat/routine-editor` | Routine list, create/edit form, add/reorder/delete activities, tests      |
