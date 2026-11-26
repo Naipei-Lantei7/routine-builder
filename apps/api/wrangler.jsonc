@@ -19,9 +19,9 @@
     {
       "binding": "DB",
       "database_name": "routine-builder",
-      // Set by `wrangler d1 create routine-builder` (see README). Local dev and tests
-      // use a local SQLite file and do not need the real id.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // Created with `wrangler d1 create routine-builder`. Not a secret: it only works
+      // with the account's credentials. Local dev and tests use a local SQLite file.
+      "database_id": "fef5bffc-34ea-461b-95cc-fa62a7b3254d",
       "migrations_dir": "../../packages/db/migrations",
     },
   ],
