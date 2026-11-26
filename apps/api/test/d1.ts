@@ -23,5 +23,10 @@ export async function createTestEnv() {
     await db.batch(statements.map((statement) => db.prepare(statement)))
   }
 
-  return { env: proxy.env, dispose: () => proxy.dispose() }
+  const env: Env = {
+    DB: db,
+    ASSETS: { fetch: async () => new Response('asset') } as unknown as Fetcher,
+    AUTH_SECRET: 'test-secret',
+  }
+  return { env, dispose: () => proxy.dispose() }
 }
