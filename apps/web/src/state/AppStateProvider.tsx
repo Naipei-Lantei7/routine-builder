@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import type { AppState } from '../domain/schema'
+import type { AppState } from '@routine-builder/domain'
 import type { RoutineRepository } from '../storage/repository'
 import { AppStateContext, type AppStateValue } from './appStateContext'
 

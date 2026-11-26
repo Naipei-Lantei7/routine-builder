@@ -1,20 +1,23 @@
 import { useRef, useState, type FormEvent } from 'react'
 import { flushSync } from 'react-dom'
-import { deleteRoutine, upsertRoutine } from '../../domain/appState'
-import { WEEKDAYS, WEEKDAY_LONG, WEEKDAY_SHORT } from '../../domain/days'
 import {
   addActivity,
   createEmptyDraft,
+  deleteRoutine,
   draftToRoutine,
   moveActivity,
   removeActivity,
+  type RoutineDraft,
   sortActivitiesByTime,
   toDraft,
   toggleDay,
   updateActivity,
+  upsertRoutine,
   validateDraft,
-  type RoutineDraft,
-} from '../../domain/routineDraft'
+  WEEKDAY_LONG,
+  WEEKDAY_SHORT,
+  WEEKDAYS,
+} from '@routine-builder/domain'
 import { useAppState } from '../../state/appStateContext'
 import { ActivityFields } from '../components/ActivityFields'
 import { Field } from '../components/Field'

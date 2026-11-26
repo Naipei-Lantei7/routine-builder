@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
-import { createEmptyState, type AppState, type Routine } from './domain/schema'
+import { createEmptyState, type AppState, type Routine } from '@routine-builder/domain'
 import { AppStateProvider } from './state/AppStateProvider'
 import { STORAGE_KEY, createLocalStorageRepository } from './storage/localStorageRepository'
 

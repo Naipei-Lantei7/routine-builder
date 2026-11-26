@@ -1,4 +1,4 @@
-import { NO_REMINDER } from '../../domain/routineDraft'
+import { NO_REMINDER } from '@routine-builder/domain'
 
 export const REMINDER_OPTIONS: { value: string; label: string }[] = [
   { value: NO_REMINDER, label: 'No reminder' },

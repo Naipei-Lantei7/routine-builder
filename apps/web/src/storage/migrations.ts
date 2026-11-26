@@ -1,4 +1,4 @@
-import { CURRENT_VERSION } from '../domain/schema'
+import { CURRENT_VERSION } from '@routine-builder/domain'
 
 type StoredData = Record<string, unknown> & { version: number }
 

@@ -1,4 +1,6 @@
 dist
 coverage
 node_modules
-package-lock.json
+.turbo
+pnpm-lock.yaml
+routeTree.gen.ts

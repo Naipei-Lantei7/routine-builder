@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createEmptyState, type AppState, type Routine } from '../domain/schema'
+import { createEmptyState, type AppState, type Routine } from '@routine-builder/domain'
 import {
   BACKUP_KEY_PREFIX,
   STORAGE_KEY,

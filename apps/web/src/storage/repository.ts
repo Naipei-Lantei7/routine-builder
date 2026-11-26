@@ -1,4 +1,4 @@
-import type { AppState } from '../domain/schema'
+import type { AppState } from '@routine-builder/domain'
 
 export type LoadResult =
   /** Nothing stored yet: first visit. */

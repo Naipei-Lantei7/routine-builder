@@ -1,4 +1,4 @@
-import type { ActivityDraft } from '../../domain/routineDraft'
+import type { ActivityDraft } from '@routine-builder/domain'
 import { Field } from './Field'
 import { REMINDER_OPTIONS } from './reminderOptions'
 

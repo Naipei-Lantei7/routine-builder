@@ -1,6 +1,4 @@
-import { setRoutineEnabled } from '../../domain/appState'
-import { formatDays } from '../../domain/days'
-import type { Routine } from '../../domain/schema'
+import { formatDays, type Routine, setRoutineEnabled } from '@routine-builder/domain'
 import { useAppState } from '../../state/appStateContext'
 
 interface Props {

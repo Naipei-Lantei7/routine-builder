@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { AppState } from '../domain/schema'
+import type { AppState } from '@routine-builder/domain'
 import type { LoadResult } from '../storage/repository'
 
 export interface AppStateValue {

@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // No DOM: this package must run in Node (tests, and the server in Stage 2).
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src"]
+}
