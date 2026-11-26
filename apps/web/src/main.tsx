@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { captureInstallPrompt } from './pwa/install'
 import { registerServiceWorker } from './pwa/registerServiceWorker'
+import { AuthProvider } from './auth/AuthProvider'
 import { createAppRouter } from './router'
 import { AppStateProvider } from './state/AppStateProvider'
 import { createLocalStorageRepository } from './storage/localStorageRepository'
@@ -16,8 +17,10 @@ const router = createAppRouter()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AppStateProvider repository={repository}>
-      <RouterProvider router={router} />
-    </AppStateProvider>
+    <AuthProvider>
+      <AppStateProvider repository={repository}>
+        <RouterProvider router={router} />
+      </AppStateProvider>
+    </AuthProvider>
   </StrictMode>,
 )

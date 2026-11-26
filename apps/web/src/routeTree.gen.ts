@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as RoutinesIndexRouteImport } from './routes/routines/index'
 import { Route as RoutinesNewRouteImport } from './routes/routines/new'
 import { Route as RoutinesRoutineIdEditRouteImport } from './routes/routines/$routineId.edit'
@@ -17,6 +18,11 @@ import { Route as RoutinesRoutineIdEditRouteImport } from './routes/routines/$ro
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoutinesIndexRoute = RoutinesIndexRouteImport.update({
@@ -37,12 +43,14 @@ const RoutinesRoutineIdEditRoute = RoutinesRoutineIdEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/sign-in': typeof SignInRoute
   '/routines/new': typeof RoutinesNewRoute
   '/routines/': typeof RoutinesIndexRoute
   '/routines/$routineId/edit': typeof RoutinesRoutineIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/sign-in': typeof SignInRoute
   '/routines/new': typeof RoutinesNewRoute
   '/routines': typeof RoutinesIndexRoute
   '/routines/$routineId/edit': typeof RoutinesRoutineIdEditRoute
@@ -50,18 +58,30 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/sign-in': typeof SignInRoute
   '/routines/new': typeof RoutinesNewRoute
   '/routines/': typeof RoutinesIndexRoute
   '/routines/$routineId/edit': typeof RoutinesRoutineIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/routines/new' | '/routines/' | '/routines/$routineId/edit'
+  fullPaths:
+    | '/'
+    | '/sign-in'
+    | '/routines/new'
+    | '/routines/'
+    | '/routines/$routineId/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/routines/new' | '/routines' | '/routines/$routineId/edit'
+  to:
+    | '/'
+    | '/sign-in'
+    | '/routines/new'
+    | '/routines'
+    | '/routines/$routineId/edit'
   id:
     | '__root__'
     | '/'
+    | '/sign-in'
     | '/routines/new'
     | '/routines/'
     | '/routines/$routineId/edit'
@@ -69,6 +89,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SignInRoute: typeof SignInRoute
   RoutinesNewRoute: typeof RoutinesNewRoute
   RoutinesIndexRoute: typeof RoutinesIndexRoute
   RoutinesRoutineIdEditRoute: typeof RoutinesRoutineIdEditRoute
@@ -81,6 +102,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/routines/': {
@@ -109,6 +137,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SignInRoute: SignInRoute,
   RoutinesNewRoute: RoutinesNewRoute,
   RoutinesIndexRoute: RoutinesIndexRoute,
   RoutinesRoutineIdEditRoute: RoutinesRoutineIdEditRoute,

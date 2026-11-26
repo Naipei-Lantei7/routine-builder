@@ -8,7 +8,7 @@ let env: Env
 
 beforeAll(async () => {
   testEnv = await createTestEnv()
-  env = { DB: testEnv.env.DB, ASSETS: { fetch: () => new Response('asset') } as unknown as Fetcher }
+  env = testEnv.env
 })
 
 afterAll(async () => {
