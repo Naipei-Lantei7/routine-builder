@@ -9,3 +9,13 @@ export const REMINDER_OPTIONS: { value: string; label: string }[] = [
   { value: '30', label: '30 min before' },
   { value: '60', label: '1 hour before' },
 ]
+
+// Short label for a saved reminder, e.g. "5 min before" or "At start time".
+export function reminderLabel(minutesBefore: number): string {
+  if (minutesBefore === 0) return 'At start time'
+  if (minutesBefore % 60 === 0) {
+    const hours = minutesBefore / 60
+    return hours === 1 ? '1 hour before' : `${hours} hours before`
+  }
+  return `${minutesBefore} min before`
+}
