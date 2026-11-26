@@ -103,9 +103,9 @@ An unknown `routineId` shows the existing "Routine not found" state.
 
 | Piece                         | When                                                         |
 | ----------------------------- | ------------------------------------------------------------ |
-| `apps/server`, NestJS, Prisma | Stage 2 (Plan 001 section 8)                                 |
-| BullMQ, Web Push              | Stage 2                                                      |
-| GraphQL, Apollo Client        | Stage 2, if the API is GraphQL                               |
+| `apps/server`, NestJS, Prisma | Replaced by Plan 003 (free Cloudflare stack)                 |
+| BullMQ, Web Push              | BullMQ dropped; Web Push in Plan 003                         |
+| GraphQL, Apollo Client        | Not planned; Plan 003 uses a small REST API (Hono)           |
 | TanStack Start, route loaders | Only useful with server data; state lives in the browser now |
 | Valtio                        | When UI-only state outgrows component state                  |
 

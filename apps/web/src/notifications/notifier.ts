@@ -20,16 +20,40 @@ export interface SystemNotification {
   body: string
   // Notifications with the same tag replace each other instead of stacking.
   tag: string
+  // In-app path to open when the notification is clicked, e.g. "/#today-…".
+  url: string
+  // Used only for page notifications; service worker clicks are handled in sw.ts.
   onClick: () => void
 }
 
-// Shows an OS notification. Returns false when it cannot be shown, so the
-// caller can fall back to an in-app message. (Chrome on Android, for example,
-// only allows notifications from a service worker and throws here.)
-export function showSystemNotification({ title, body, tag, onClick }: SystemNotification): boolean {
+// Shows an OS notification. Prefers the service worker, which Android requires
+// and which can handle clicks after the page is gone; falls back to a page
+// notification. Returns false when neither works, so the caller can show the
+// reminder in the app instead.
+export async function showSystemNotification(notification: SystemNotification): Promise<boolean> {
   if (getPermission() !== 'granted') return false
+  return (await showViaServiceWorker(notification)) || showViaPage(notification)
+}
+
+async function showViaServiceWorker({ title, body, tag, url }: SystemNotification) {
   try {
-    const notification = new Notification(title, { body, tag, icon: '/favicon.svg' })
+    const registration = await navigator.serviceWorker?.getRegistration()
+    if (!registration?.active) return false
+    await registration.showNotification(title, {
+      body,
+      tag,
+      icon: '/icons/icon-192.png',
+      data: { url },
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+function showViaPage({ title, body, tag, onClick }: SystemNotification) {
+  try {
+    const notification = new Notification(title, { body, tag, icon: '/icons/icon-192.png' })
     notification.onclick = () => {
       window.focus()
       notification.close()

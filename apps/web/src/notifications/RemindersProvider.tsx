@@ -1,5 +1,5 @@
 import { getDueReminders, markRemindersFired, reminderMessage } from '@routine-builder/domain'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useAppState } from '../state/appStateContext'
 import { getPermission, requestPermission, showSystemNotification } from './notifier'
@@ -15,11 +15,12 @@ const LOCK_NAME = 'routine-builder:reminders'
 export function RemindersProvider({ children }: { children: ReactNode }) {
   const { refresh, update } = useAppState()
   const navigate = useNavigate()
+  const router = useRouter()
   const [permission, setPermission] = useState(getPermission)
   const [inApp, setInApp] = useState<InAppReminder[]>([])
 
   const check = useCallback(() => {
-    return withLock(LOCK_NAME, () => {
+    return withLock(LOCK_NAME, async () => {
       // Read the latest stored state inside the lock: another tab may have just
       // shown (and recorded) the same reminder.
       const state = refresh()
@@ -38,10 +39,11 @@ export function RemindersProvider({ children }: { children: ReactNode }) {
       for (const reminder of due) {
         const { title, body } = reminderMessage(reminder, now)
         const targetId = `today-${reminder.routineId}-${reminder.activity.id}`
-        const shown = showSystemNotification({
+        const shown = await showSystemNotification({
           title,
           body,
           tag: reminder.key,
+          url: `/#${targetId}`,
           onClick: () => navigate({ to: '/', hash: targetId }),
         })
         if (!shown) onPage.push({ key: reminder.key, title, body, targetId })
@@ -70,6 +72,19 @@ export function RemindersProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('focus', onFocus)
     }
   }, [check])
+
+  // A notification clicked while the app is open: the service worker focuses this
+  // window and asks it to navigate, which keeps the app's state.
+  useEffect(() => {
+    const container = navigator.serviceWorker
+    if (!container) return
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as { type?: unknown; url?: unknown } | null
+      if (data?.type === 'open' && typeof data.url === 'string') router.history.push(data.url)
+    }
+    container.addEventListener('message', onMessage)
+    return () => container.removeEventListener('message', onMessage)
+  }, [router])
 
   const enable = useCallback(async () => {
     setPermission(await requestPermission())

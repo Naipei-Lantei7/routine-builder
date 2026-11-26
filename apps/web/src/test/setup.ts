@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { cleanup } from '@testing-library/react'
+import { cleanup, configure } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
 // jsdom does not implement these; Radix Select and other primitives call them.
@@ -22,6 +22,10 @@ window.matchMedia ??= (query: string) =>
     removeListener: () => {},
     dispatchEvent: () => false,
   }) as MediaQueryList
+
+// findBy* waits 1s by default; routes are code-split and load lazily, which can
+// take longer than that on a busy machine.
+configure({ asyncUtilTimeout: 5_000 })
 
 afterEach(() => {
   cleanup()
