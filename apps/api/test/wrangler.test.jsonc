@@ -1,0 +1,15 @@
+{
+  // Test-only config: the same D1 binding as wrangler.jsonc, without static assets,
+  // so tests do not need the web app to be built first.
+  "name": "routine-builder-test",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "send_metrics": false,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "routine-builder-test",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+    },
+  ],
+}
