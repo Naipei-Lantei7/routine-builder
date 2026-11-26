@@ -95,8 +95,12 @@ version pinned in `package.json`.
 git clone https://github.com/Naipei-Lantei7/routine-builder.git
 cd routine-builder
 pnpm install
+cp apps/api/.dev.vars.example apps/api/.dev.vars   # local secrets, gitignored
 pnpm dev          # app on http://localhost:5173, API on http://localhost:8787
 ```
+
+In development, sign-in codes are printed in the `pnpm dev` terminal instead of being
+emailed.
 
 `pnpm dev` starts Vite and the Worker together. Vite forwards `/api` requests to the
 Worker, which uses a local SQLite file for D1 and applies migrations on start.
@@ -143,7 +147,19 @@ pnpm --filter @routine-builder/api exec wrangler login
 pnpm --filter @routine-builder/api exec wrangler d1 create routine-builder
 ```
 
-Copy the `database_id` it prints into `apps/api/wrangler.jsonc`. Then, for each release:
+Copy the `database_id` it prints into `apps/api/wrangler.jsonc`.
+
+Sign-in emails go through [Resend](https://resend.com)'s free plan. Create an API key
+there, then set the Worker's secrets (each command asks for the value):
+
+```bash
+cd apps/api
+openssl rand -base64 32 | pnpm exec wrangler secret put AUTH_SECRET
+pnpm exec wrangler secret put RESEND_API_KEY
+```
+
+Without a verified domain, Resend only delivers to the email address of the Resend
+account itself, which is enough to use the app yourself. Then, for each release:
 
 ```bash
 pnpm deploy:app   # builds the web app, applies new D1 migrations, deploys the Worker
