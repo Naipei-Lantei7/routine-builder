@@ -1,27 +1,27 @@
+import { createEmptyState, type AppState, type Routine } from '@routine-builder/domain'
+import { createMemoryHistory, RouterProvider } from '@tanstack/react-router'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
-import App from './App'
-import { createEmptyState, type AppState, type Routine } from '@routine-builder/domain'
+import { createAppRouter } from './router'
 import { AppStateProvider } from './state/AppStateProvider'
 import { STORAGE_KEY, createLocalStorageRepository } from './storage/localStorageRepository'
 
 const ROUTINE_ID = '0b6e3c8d-2f4a-4c1b-8e9d-7a5f3b2c1d00'
 
-function sequentialIds() {
-  let n = 0
-  return () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`
-}
-
-function renderApp() {
+// Renders the whole app (state + router) at `path`, backed by jsdom's localStorage.
+async function renderApp(path = '/') {
   const repository = createLocalStorageRepository({ storage: localStorage })
+  const router = createAppRouter({ history: createMemoryHistory({ initialEntries: [path] }) })
   const user = userEvent.setup()
   render(
     <AppStateProvider repository={repository}>
-      <App newId={sequentialIds()} />
+      <RouterProvider router={router} />
     </AppStateProvider>,
   )
-  return { user }
+  // Routes load asynchronously; wait for the app shell.
+  await screen.findByRole('heading', { level: 1, name: 'Routine Builder' })
+  return { user, router }
 }
 
 function stored(): AppState {
@@ -72,43 +72,70 @@ beforeEach(() => {
 })
 
 describe('routine list', () => {
-  it('shows an empty state on first visit', () => {
-    renderApp()
-    expect(screen.getByRole('heading', { level: 1, name: 'Routine Builder' })).toBeInTheDocument()
-    expect(screen.getByText('No routines yet.')).toBeInTheDocument()
+  it('shows an empty state on first visit', async () => {
+    await renderApp()
+    expect(await screen.findByText('No routines yet.')).toBeInTheDocument()
   })
 
-  it('summarises each routine', () => {
+  it('summarises each routine and its activities', async () => {
     seed(morning)
-    renderApp()
-    expect(screen.getByRole('heading', { name: 'Morning' })).toBeInTheDocument()
+    await renderApp()
+    expect(await screen.findByRole('heading', { name: 'Morning' })).toBeInTheDocument()
     expect(screen.getByText('Weekdays · 3 activities · 07:00–08:00')).toBeInTheDocument()
+    expect(screen.getByText('10 min before')).toBeInTheDocument()
   })
 
   it('turns a routine off and saves it', async () => {
     seed(morning)
-    const { user } = renderApp()
+    const { user } = await renderApp()
 
-    await user.click(screen.getByRole('checkbox', { name: /Morning/ }))
+    await user.click(await screen.findByRole('switch', { name: 'Morning is on' }))
 
-    expect(screen.getByRole('checkbox', { name: 'Morning is off' })).not.toBeChecked()
+    expect(screen.getByRole('switch', { name: 'Morning is off' })).not.toBeChecked()
+    expect(screen.getByText('Off')).toBeInTheDocument()
     expect(stored().routines[0].enabled).toBe(false)
   })
 
-  it('warns when saved data could not be read', () => {
+  it('warns when saved data could not be read', async () => {
     localStorage.setItem(STORAGE_KEY, '{broken')
-    renderApp()
+    await renderApp()
     expect(screen.getByRole('status')).toHaveTextContent('could not be read')
+  })
+})
+
+describe('routing', () => {
+  it('opens the editor at /routines/new from the list', async () => {
+    const { user, router } = await renderApp()
+
+    await user.click(await screen.findByRole('link', { name: 'New routine' }))
+
+    expect(await screen.findByRole('heading', { name: 'New routine' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/routines/new')
+  })
+
+  it('loads the editor directly from its URL', async () => {
+    seed(morning)
+    await renderApp(`/routines/${ROUTINE_ID}/edit`)
+    expect(await screen.findByRole('heading', { name: 'Edit Morning' })).toBeInTheDocument()
+  })
+
+  it('shows "Routine not found" for an unknown id', async () => {
+    await renderApp('/routines/does-not-exist/edit')
+    expect(await screen.findByRole('heading', { name: 'Routine not found' })).toBeInTheDocument()
+  })
+
+  it('shows a not-found page for unknown URLs', async () => {
+    await renderApp('/nope')
+    expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument()
   })
 })
 
 describe('creating a routine', () => {
   it('creates a routine with an activity and saves it', async () => {
-    const { user } = renderApp()
+    const { user, router } = await renderApp('/routines/new')
 
-    await user.click(screen.getByRole('button', { name: 'New routine' }))
-    await user.type(screen.getByLabelText('Name'), 'Evening')
-    await user.click(screen.getByRole('checkbox', { name: 'Monday' })) // untick Monday
+    await user.type(await screen.findByLabelText('Name'), 'Evening')
+    await user.click(screen.getByRole('button', { name: 'Monday', pressed: true })) // untick Monday
     await user.click(screen.getByRole('button', { name: 'Add activity' }))
 
     const activity = screen.getByRole('group', { name: 'Activity 1' })
@@ -118,10 +145,12 @@ describe('creating a routine', () => {
     await user.clear(time)
     await user.type(time, '21:30')
     await user.type(within(activity).getByLabelText('Duration (min)'), '20')
-    await user.selectOptions(within(activity).getByLabelText('Reminder'), '10 min before')
+    await user.click(within(activity).getByRole('combobox', { name: 'Reminder' }))
+    await user.click(await screen.findByRole('option', { name: '10 min before' }))
     await user.click(screen.getByRole('button', { name: 'Save routine' }))
 
-    expect(screen.getByRole('heading', { name: 'Evening' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Evening' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/')
     expect(stored().routines).toEqual([
       expect.objectContaining({
         name: 'Evening',
@@ -141,31 +170,51 @@ describe('creating a routine', () => {
   })
 
   it('shows errors and saves nothing when the form is invalid', async () => {
-    const { user } = renderApp()
+    const { user } = await renderApp('/routines/new')
 
-    await user.click(screen.getByRole('button', { name: 'New routine' }))
-    await user.click(screen.getByRole('button', { name: 'Add activity' }))
+    await user.click(await screen.findByRole('button', { name: 'Add activity' }))
     await user.click(screen.getByRole('button', { name: 'Save routine' }))
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Fix 2 problems before saving.')
-    expect(screen.getByRole('alert')).toHaveFocus()
+    const summary = screen.getByText('Fix 2 problems before saving.').closest('[role="alert"]')
+    expect(summary).toHaveFocus()
     expect(screen.getByLabelText('Name')).toHaveAccessibleDescription('Give the routine a name')
     expect(screen.getByLabelText('Title')).toHaveAccessibleDescription('Give the activity a title')
     expect(stored()).toBeNull()
 
     // Errors clear as they are fixed.
     await user.type(screen.getByLabelText('Name'), 'Evening')
-    expect(screen.getByRole('alert')).toHaveTextContent('Fix 1 problem before saving.')
+    expect(screen.getByText('Fix 1 problem before saving.')).toBeInTheDocument()
+  })
+
+  it('requires at least one day', async () => {
+    const { user } = await renderApp('/routines/new')
+    await user.type(await screen.findByLabelText('Name'), 'Never')
+    for (const day of [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ]) {
+      await user.click(screen.getByRole('button', { name: day }))
+    }
+    await user.click(screen.getByRole('button', { name: 'Save routine' }))
+
+    expect(screen.getByRole('group', { name: 'Days' })).toHaveAccessibleDescription(
+      'Pick at least one day',
+    )
+    expect(stored()).toBeNull()
   })
 
   it('discards the draft on cancel', async () => {
-    const { user } = renderApp()
+    const { user } = await renderApp('/routines/new')
 
-    await user.click(screen.getByRole('button', { name: 'New routine' }))
-    await user.type(screen.getByLabelText('Name'), 'Evening')
+    await user.type(await screen.findByLabelText('Name'), 'Evening')
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
-    expect(screen.getByText('No routines yet.')).toBeInTheDocument()
+    expect(await screen.findByText('No routines yet.')).toBeInTheDocument()
     expect(stored()).toBeNull()
   })
 })
@@ -173,10 +222,9 @@ describe('creating a routine', () => {
 describe('editing a routine', () => {
   it('reorders, sorts and removes activities', async () => {
     seed(morning)
-    const { user } = renderApp()
-    await user.click(screen.getByRole('button', { name: 'Edit Morning' }))
+    const { user } = await renderApp(`/routines/${ROUTINE_ID}/edit`)
 
-    expect(screen.getByRole('button', { name: 'Move Wake up up' })).toBeDisabled()
+    expect(await screen.findByRole('button', { name: 'Move Wake up up' })).toBeDisabled()
     await user.click(screen.getByRole('button', { name: 'Move Wake up down' }))
     expect(activityTitles()).toEqual(['Stretch', 'Wake up', 'Leave'])
 
@@ -187,6 +235,7 @@ describe('editing a routine', () => {
     expect(activityTitles()).toEqual(['Wake up', 'Leave'])
 
     await user.click(screen.getByRole('button', { name: 'Save routine' }))
+    await screen.findByRole('heading', { name: 'Your routines' })
 
     const saved = stored().routines[0]
     expect(saved.activities.map((a) => a.title)).toEqual(['Wake up', 'Leave'])
@@ -196,31 +245,32 @@ describe('editing a routine', () => {
 
   it('renames a routine', async () => {
     seed(morning)
-    const { user } = renderApp()
-    await user.click(screen.getByRole('button', { name: 'Edit Morning' }))
+    const { user } = await renderApp()
+    await user.click(await screen.findByRole('link', { name: 'Edit Morning' }))
 
-    const name = screen.getByLabelText('Name')
+    const name = await screen.findByLabelText('Name')
     await user.clear(name)
     await user.type(name, 'Early morning')
     await user.click(screen.getByRole('button', { name: 'Save routine' }))
 
-    expect(screen.getByRole('heading', { name: 'Early morning' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Early morning' })).toBeInTheDocument()
     expect(stored().routines).toHaveLength(1)
   })
 
   it('deletes a routine after confirmation', async () => {
     seed(morning)
-    const { user } = renderApp()
-    await user.click(screen.getByRole('button', { name: 'Edit Morning' }))
+    const { user } = await renderApp(`/routines/${ROUTINE_ID}/edit`)
 
-    await user.click(screen.getByRole('button', { name: 'Delete routine' }))
+    await user.click(await screen.findByRole('button', { name: 'Delete routine' }))
+    expect(screen.getByRole('alertdialog', { name: 'Delete Morning?' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Keep it' }))
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     expect(stored().routines).toHaveLength(1)
 
     await user.click(screen.getByRole('button', { name: 'Delete routine' }))
     await user.click(screen.getByRole('button', { name: 'Yes, delete' }))
 
-    expect(screen.getByText('No routines yet.')).toBeInTheDocument()
+    expect(await screen.findByText('No routines yet.')).toBeInTheDocument()
     expect(stored().routines).toEqual([])
   })
 })
