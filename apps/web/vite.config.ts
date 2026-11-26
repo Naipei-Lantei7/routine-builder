@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url'
 import type { Plugin } from 'vite'
 import { defineConfig } from 'vitest/config'
 
+const API_DEV_ORIGIN = 'http://localhost:8787'
+
 // Writes the list of built files and a build id into sw.js, so the service worker
 // can cache the whole app on install and replace the cache on each new build.
 function precacheManifest(): Plugin {
@@ -46,7 +48,21 @@ export default defineConfig({
   ],
   server: {
     // In development the API runs separately under `wrangler dev` (apps/api).
-    proxy: { '/api': 'http://localhost:8787' },
+    proxy: {
+      '/api': {
+        target: API_DEV_ORIGIN,
+        // Send the Worker's own host, so the URL it sees matches the rewritten origin.
+        changeOrigin: true,
+        // In production the app and API share one origin. Here the browser is on Vite's
+        // port, so present proxied requests as coming from the Worker's own origin to
+        // pass its cross-site check, which stays strict.
+        configure: (proxy) => {
+          proxy.on('proxyReq', (request) => {
+            if (request.getHeader('origin')) request.setHeader('origin', API_DEV_ORIGIN)
+          })
+        },
+      },
+    },
   },
   build: {
     rollupOptions: {

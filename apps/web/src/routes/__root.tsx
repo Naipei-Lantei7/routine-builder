@@ -2,6 +2,7 @@ import { Button } from '@routine-builder/ui/components/button'
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 import { ListChecks } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { AccountMenu } from '../components/layout/AccountMenu'
 import { ReminderBanner } from '../components/layout/ReminderBanner'
 import { StorageNotice } from '../components/layout/StorageNotice'
 import { ThemeToggle } from '../components/layout/ThemeToggle'
@@ -30,7 +31,10 @@ function RootLayout() {
                 <NavLink to="/routines">Routines</NavLink>
               </nav>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <AccountMenu />
+            </div>
           </div>
         </header>
         <main className="mx-auto max-w-2xl px-4 py-8">
