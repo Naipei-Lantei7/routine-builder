@@ -2,6 +2,9 @@
 
 Plan your day as routines, see what's on today, and get reminded before each activity.
 
+**Live app:** [routine-builder.naipei.workers.dev](https://routine-builder.naipei.workers.dev)
+(installable on your phone; see [Install it on your phone](#install-it-on-your-phone)).
+
 Create routines like "Weekday morning" or "Push day", choose the days they run, and add
 activities at set times. The **Today** view merges everything scheduled for today in time
 order, highlights what's next, and lets you tick things off. Reminders arrive as browser
