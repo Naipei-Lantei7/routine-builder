@@ -95,6 +95,7 @@ pnpm dev          # http://localhost:5173
 | `pnpm test`                              | Run all tests                                 |
 | `pnpm --filter @routine-builder/web dev` | Run a command in one package                  |
 | `pnpm format`                            | Format the repo with Prettier                 |
+| `pnpm deploy:web`                        | Build the web app and deploy it to Cloudflare |
 
 ## Testing
 
@@ -122,7 +123,7 @@ always re-checked, hashed build files are cached for a year.
 
 ```bash
 pnpm --filter @routine-builder/web exec wrangler login   # once, opens Cloudflare in the browser
-pnpm --filter @routine-builder/web deploy                # build and upload
+pnpm deploy:web                                          # build and upload
 ```
 
 To deploy on every push to `main` instead, connect the repository in the Cloudflare
