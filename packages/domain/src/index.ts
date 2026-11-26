@@ -1,5 +1,6 @@
 export * from './appState'
 export * from './days'
 export * from './routineDraft'
+export * from './schedule'
 export * from './schema'
 export * from './time'

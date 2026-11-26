@@ -14,6 +14,7 @@ import { cn } from '@routine-builder/ui/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { Bell, CalendarClock, Pencil, Plus } from 'lucide-react'
 import { useAppState } from '../../state/appStateContext'
+import { EmptyState } from '../layout/EmptyState'
 import { reminderLabel } from './reminderOptions'
 
 export function RoutineList() {
@@ -41,7 +42,19 @@ export function RoutineList() {
       </div>
 
       {state.routines.length === 0 ? (
-        <EmptyState />
+        <EmptyState
+          icon={CalendarClock}
+          title="No routines yet."
+          description="Create one, like a weekday morning routine, and add the activities you do at set times."
+          action={
+            <Button asChild>
+              <Link to="/routines/new">
+                <Plus aria-hidden="true" />
+                New routine
+              </Link>
+            </Button>
+          }
+        />
       ) : (
         <ul className="space-y-4">
           {state.routines.map((routine) => (
@@ -116,28 +129,6 @@ function RoutineCard({
         </CardContent>
       )}
     </Card>
-  )
-}
-
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed px-6 py-12 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-        <CalendarClock className="size-6 text-muted-foreground" aria-hidden="true" />
-      </div>
-      <div className="space-y-1">
-        <p className="font-medium">No routines yet.</p>
-        <p className="text-sm text-muted-foreground">
-          Create one, like a weekday morning routine, and add the activities you do at set times.
-        </p>
-      </div>
-      <Button asChild>
-        <Link to="/routines/new">
-          <Plus aria-hidden="true" />
-          New routine
-        </Link>
-      </Button>
-    </div>
   )
 }
 

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { RoutineList } from '../components/routines/RoutineList'
+import { TodayView } from '../components/today/TodayView'
 
 export const Route = createFileRoute('/')({
-  component: RoutineList,
+  component: TodayView,
 })

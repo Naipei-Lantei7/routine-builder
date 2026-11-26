@@ -10,6 +10,10 @@ function EditRoutinePage() {
   const navigate = useNavigate()
   // Keyed so switching between routines starts a fresh draft.
   return (
-    <RoutineEditor key={routineId} routineId={routineId} onDone={() => navigate({ to: '/' })} />
+    <RoutineEditor
+      key={routineId}
+      routineId={routineId}
+      onDone={() => navigate({ to: '/routines' })}
+    />
   )
 }
