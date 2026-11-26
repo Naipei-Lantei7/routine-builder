@@ -70,14 +70,14 @@ later backend that delivers reminders even when the app is closed.
 
 ### 5.1 Stack
 
-| Concern    | Choice                                  | Why                                               |
-| ---------- | --------------------------------------- | ------------------------------------------------- |
-| UI         | React + TypeScript + Vite               | Familiar, fast to build, typed end to end         |
-| Validation | Zod                                     | One schema gives both runtime checks and TS types |
-| Tests      | Vitest (+ Testing Library for UI)       | Native to Vite, fast                              |
-| Lint       | oxlint (from the Vite template) + Prettier | Kept the template default rather than adding ESLint |
-| CI         | GitHub Actions: format, lint, typecheck, test, build | Every PR proves it works                |
-| Hosting    | Vercel                                  | Free, preview deploy per PR                       |
+| Concern    | Choice                                               | Why                                                 |
+| ---------- | ---------------------------------------------------- | --------------------------------------------------- |
+| UI         | React + TypeScript + Vite                            | Familiar, fast to build, typed end to end           |
+| Validation | Zod                                                  | One schema gives both runtime checks and TS types   |
+| Tests      | Vitest (+ Testing Library for UI)                    | Native to Vite, fast                                |
+| Lint       | oxlint (from the Vite template) + Prettier           | Kept the template default rather than adding ESLint |
+| CI         | GitHub Actions: format, lint, typecheck, test, build | Every PR proves it works                            |
+| Hosting    | Vercel                                               | Free, preview deploy per PR                         |
 
 ### 5.2 Architecture
 
@@ -112,19 +112,29 @@ implementation talks to the API, and the UI does not change.
 
 ```ts
 // Days use ISO numbering: 1 = Monday ... 7 = Sunday.
-const Weekday = z.number().int().min(1).max(7);
+const Weekday = z.number().int().min(1).max(7)
 
 // Wall-clock local time, e.g. "07:30". Not a timestamp.
-const TimeOfDay = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+const TimeOfDay = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/)
 
 const Activity = z.object({
   id: z.string().uuid(),
   title: z.string().trim().min(1).max(100),
   time: TimeOfDay,
-  durationMinutes: z.number().int().positive().max(24 * 60).optional(),
+  durationMinutes: z
+    .number()
+    .int()
+    .positive()
+    .max(24 * 60)
+    .optional(),
   notes: z.string().max(500).optional(),
-  reminderMinutesBefore: z.number().int().min(0).max(24 * 60).nullable(), // null = no reminder
-});
+  reminderMinutesBefore: z
+    .number()
+    .int()
+    .min(0)
+    .max(24 * 60)
+    .nullable(), // null = no reminder
+})
 
 const Routine = z.object({
   id: z.string().uuid(),
@@ -134,7 +144,7 @@ const Routine = z.object({
   enabled: z.boolean(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-});
+})
 
 // One record per activity per day it was completed.
 const Completion = z.object({
@@ -142,14 +152,14 @@ const Completion = z.object({
   activityId: z.string().uuid(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // local date key
   completedAt: z.string().datetime(),
-});
+})
 
 const AppState = z.object({
   version: z.literal(1),
   routines: z.array(Routine),
   completions: z.array(Completion),
   firedReminders: z.array(z.string()), // keys, see 5.6
-});
+})
 ```
 
 Decisions:
@@ -275,15 +285,15 @@ The UI states plainly: "Reminders work while this tab is open."
 One branch and one PR per item, Conventional Commits, squash-merge into
 `main`.
 
-| PR | Branch                | Contents                                                                 |
-| -- | --------------------- | ------------------------------------------------------------------------ |
-| 0  | `docs/rfc-0001`       | This RFC                                                                 |
-| 1  | `chore/setup`         | Vite + React + TS, oxlint, Prettier, Vitest, GitHub Actions              |
-| 2  | `feat/routine-model`  | Zod schemas, time helpers, repository, migrations, tests                 |
-| 3  | `feat/routine-editor` | Routine list, create/edit form, add/reorder/delete activities, tests     |
-| 4  | `feat/today-view`     | Today view, next-up, mark done, completions, tests                       |
-| 5  | `feat/reminders`      | Reminder logic, tick scheduler, Notification API + banner fallback, tests |
-| 6  | `docs/readme-deploy`  | README with screenshots, Vercel deploy, live link                        |
+| PR  | Branch                | Contents                                                                  |
+| --- | --------------------- | ------------------------------------------------------------------------- |
+| 0   | `docs/rfc-0001`       | This RFC                                                                  |
+| 1   | `chore/setup`         | Vite + React + TS, oxlint, Prettier, Vitest, GitHub Actions               |
+| 2   | `feat/routine-model`  | Zod schemas, time helpers, repository, migrations, tests                  |
+| 3   | `feat/routine-editor` | Routine list, create/edit form, add/reorder/delete activities, tests      |
+| 4   | `feat/today-view`     | Today view, next-up, mark done, completions, tests                        |
+| 5   | `feat/reminders`      | Reminder logic, tick scheduler, Notification API + banner fallback, tests |
+| 6   | `docs/readme-deploy`  | README with screenshots, Vercel deploy, live link                         |
 
 PRs 2 and 4 are pure logic and should carry most of the tests. PR 6 can be
 done right after PR 3 so there is a live link early, then redeployed
@@ -331,15 +341,15 @@ service worker) as part of Stage 2 and explain this to iPhone users.
 
 ## 9. Alternatives considered
 
-| Option                                         | Why not (for now)                                                    |
-| ---------------------------------------------- | -------------------------------------------------------------------- |
-| One `setTimeout` per reminder                  | Drifts, throttled in background tabs, lost on sleep                  |
-| Notification Triggers API                      | Experiment was abandoned; not available                              |
-| Periodic Background Sync                       | Chromium-only, installed PWA only, browser decides timing            |
-| IndexedDB instead of `localStorage`            | More complex; data is small. Revisit if history grows large          |
-| Firebase / Supabase instead of NestJS          | Faster, but the goal is to show backend skills with a familiar stack |
-| Cron-style polling of all users every minute   | Simple, but scales poorly; delayed jobs are precise and per-activity |
-| Storing activity times as UTC timestamps       | Breaks on travel and DST; routines are wall-clock by nature          |
+| Option                                       | Why not (for now)                                                    |
+| -------------------------------------------- | -------------------------------------------------------------------- |
+| One `setTimeout` per reminder                | Drifts, throttled in background tabs, lost on sleep                  |
+| Notification Triggers API                    | Experiment was abandoned; not available                              |
+| Periodic Background Sync                     | Chromium-only, installed PWA only, browser decides timing            |
+| IndexedDB instead of `localStorage`          | More complex; data is small. Revisit if history grows large          |
+| Firebase / Supabase instead of NestJS        | Faster, but the goal is to show backend skills with a familiar stack |
+| Cron-style polling of all users every minute | Simple, but scales poorly; delayed jobs are precise and per-activity |
+| Storing activity times as UTC timestamps     | Breaks on travel and DST; routines are wall-clock by nature          |
 
 ## 10. Future work
 
