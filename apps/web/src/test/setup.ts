@@ -6,6 +6,8 @@ import { afterEach } from 'vitest'
 Element.prototype.hasPointerCapture ??= () => false
 Element.prototype.releasePointerCapture ??= () => {}
 Element.prototype.scrollIntoView ??= () => {}
+// input-otp probes the page for password-manager badges with this.
+document.elementFromPoint ??= () => null
 globalThis.ResizeObserver ??= class {
   observe() {}
   unobserve() {}
