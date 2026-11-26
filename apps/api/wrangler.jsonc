@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // One Worker for the whole app (Plan 003): the API under /api and the built
+  // web app as static assets, on the same origin.
+  "name": "routine-builder",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Do not send Wrangler usage telemetry from this project.
+  "send_metrics": false,
+  "assets": {
+    "directory": "../web/dist",
+    // Unknown paths serve index.html so client-side routes like /routines load on refresh.
+    "not_found_handling": "single-page-application",
+    // API requests always reach the Worker, even page navigations to /api/*.
+    "run_worker_first": ["/api/*"],
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "routine-builder",
+      // Set by `wrangler d1 create routine-builder` (see README). Local dev and tests
+      // use a local SQLite file and do not need the real id.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "../../packages/db/migrations",
+    },
+  ],
+  "observability": {
+    "enabled": true,
+  },
+}

@@ -44,6 +44,10 @@ export default defineConfig({
     tailwindcss(),
     precacheManifest(),
   ],
+  server: {
+    // In development the API runs separately under `wrangler dev` (apps/api).
+    proxy: { '/api': 'http://localhost:8787' },
+  },
   build: {
     rollupOptions: {
       input: {
