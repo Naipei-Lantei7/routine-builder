@@ -1,36 +1,10 @@
-import { createEmptyState, type AppState, type Routine } from '@routine-builder/domain'
-import { createMemoryHistory, RouterProvider } from '@tanstack/react-router'
-import { render, screen, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import type { Routine } from '@routine-builder/domain'
+import { screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { createAppRouter } from './router'
-import { AppStateProvider } from './state/AppStateProvider'
-import { STORAGE_KEY, createLocalStorageRepository } from './storage/localStorageRepository'
+import { STORAGE_KEY } from './storage/localStorageRepository'
+import { renderApp, seed, stored } from './test/utils'
 
 const ROUTINE_ID = '0b6e3c8d-2f4a-4c1b-8e9d-7a5f3b2c1d00'
-
-// Renders the whole app (state + router) at `path`, backed by jsdom's localStorage.
-async function renderApp(path = '/') {
-  const repository = createLocalStorageRepository({ storage: localStorage })
-  const router = createAppRouter({ history: createMemoryHistory({ initialEntries: [path] }) })
-  const user = userEvent.setup()
-  render(
-    <AppStateProvider repository={repository}>
-      <RouterProvider router={router} />
-    </AppStateProvider>,
-  )
-  // Routes load asynchronously; wait for the app shell.
-  await screen.findByRole('heading', { level: 1, name: 'Routine Builder' })
-  return { user, router }
-}
-
-function stored(): AppState {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')
-}
-
-function seed(...routines: Routine[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...createEmptyState(), routines }))
-}
 
 const morning: Routine = {
   id: ROUTINE_ID,
@@ -79,7 +53,7 @@ describe('routine list', () => {
 
   it('summarises each routine and its activities', async () => {
     seed(morning)
-    await renderApp()
+    await renderApp('/routines')
     expect(await screen.findByRole('heading', { name: 'Morning' })).toBeInTheDocument()
     expect(screen.getByText('Weekdays · 3 activities · 07:00–08:00')).toBeInTheDocument()
     expect(screen.getByText('10 min before')).toBeInTheDocument()
@@ -87,7 +61,7 @@ describe('routine list', () => {
 
   it('turns a routine off and saves it', async () => {
     seed(morning)
-    const { user } = await renderApp()
+    const { user } = await renderApp('/routines')
 
     await user.click(await screen.findByRole('switch', { name: 'Morning is on' }))
 
@@ -105,7 +79,7 @@ describe('routine list', () => {
 
 describe('routing', () => {
   it('opens the editor at /routines/new from the list', async () => {
-    const { user, router } = await renderApp()
+    const { user, router } = await renderApp('/routines')
 
     await user.click(await screen.findByRole('link', { name: 'New routine' }))
 
@@ -150,7 +124,7 @@ describe('creating a routine', () => {
     await user.click(screen.getByRole('button', { name: 'Save routine' }))
 
     expect(await screen.findByRole('heading', { name: 'Evening' })).toBeInTheDocument()
-    expect(router.state.location.pathname).toBe('/')
+    expect(router.state.location.pathname).toBe('/routines')
     expect(stored().routines).toEqual([
       expect.objectContaining({
         name: 'Evening',
@@ -245,7 +219,7 @@ describe('editing a routine', () => {
 
   it('renames a routine', async () => {
     seed(morning)
-    const { user } = await renderApp()
+    const { user } = await renderApp('/routines')
     await user.click(await screen.findByRole('link', { name: 'Edit Morning' }))
 
     const name = await screen.findByLabelText('Name')
