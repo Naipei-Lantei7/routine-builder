@@ -1,14 +1,14 @@
 import { z } from 'zod'
 
-/** ISO weekday: 1 = Monday ... 7 = Sunday. */
+// ISO weekday: 1 = Monday ... 7 = Sunday.
 export const WeekdaySchema = z.number().int().min(1).max(7)
 
-/** Wall-clock local time, "HH:mm" in 24-hour format. Not a timestamp. */
+// Wall-clock local time, "HH:mm" in 24-hour format. Not a timestamp.
 export const TimeOfDaySchema = z
   .string()
   .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Expected a time in HH:mm format')
 
-/** Local calendar date, "YYYY-MM-DD". */
+// Local calendar date, "YYYY-MM-DD".
 export const DateKeySchema = z
   .string()
   .regex(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, 'Expected a date in YYYY-MM-DD format')
@@ -21,7 +21,7 @@ export const ActivitySchema = z.object({
   time: TimeOfDaySchema,
   durationMinutes: z.number().int().positive().max(MINUTES_PER_DAY).optional(),
   notes: z.string().max(500).optional(),
-  /** Minutes before `time` to remind the user. `null` means no reminder. */
+  // Minutes before `time` to remind the user. `null` means no reminder.
   reminderMinutesBefore: z.number().int().min(0).max(MINUTES_PER_DAY).nullable(),
 })
 
@@ -38,7 +38,7 @@ export const RoutineSchema = z.object({
   updatedAt: z.iso.datetime(),
 })
 
-/** One record per activity per local day it was completed. */
+// One record per activity per local day it was completed.
 export const CompletionSchema = z.object({
   routineId: z.uuid(),
   activityId: z.uuid(),
@@ -52,7 +52,7 @@ export const AppStateSchema = z.object({
   version: z.literal(CURRENT_VERSION),
   routines: z.array(RoutineSchema),
   completions: z.array(CompletionSchema),
-  /** Keys of reminders already shown: `${routineId}:${activityId}:${date}`. */
+  // Keys of reminders already shown: `${routineId}:${activityId}:${date}`.
   firedReminders: z.array(z.string()),
 })
 

@@ -8,7 +8,7 @@ interface FieldProps {
   children: ReactElement<InputHTMLAttributes<HTMLElement>>
 }
 
-/** Label + control + error message, wired up with aria-invalid and aria-describedby. */
+// Label + control + error message, wired up with aria-invalid and aria-describedby.
 export function Field({ id, label, error, className, children }: FieldProps) {
   const errorId = `${id}-error`
   return (

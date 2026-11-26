@@ -12,15 +12,15 @@ import type { LoadResult, RoutineRepository } from './repository'
 export const STORAGE_KEY = 'routine-builder:v1'
 export const BACKUP_KEY_PREFIX = 'routine-builder:corrupt:'
 
-/** Completions older than this are dropped on load. */
+// Completions older than this are dropped on load.
 export const COMPLETION_RETENTION_DAYS = 400
-/** Fired-reminder keys older than this are dropped on load. */
+// Fired-reminder keys older than this are dropped on load.
 export const FIRED_REMINDER_RETENTION_DAYS = 2
 
 export interface LocalStorageRepositoryOptions {
   storage?: Storage
   now?: () => Date
-  /** Where `storage` events are listened for. Defaults to `window`. */
+  // Where `storage` events are listened for. Defaults to `window`.
   eventTarget?: Pick<Window, 'addEventListener' | 'removeEventListener'>
 }
 
@@ -110,7 +110,7 @@ function parse(raw: string): ParseResult {
   return { ok: true, state: result.data }
 }
 
-/** Drops completions and fired-reminder keys that are too old to matter. */
+// Drops completions and fired-reminder keys that are too old to matter.
 export function pruneState(state: AppState, now: Date): AppState {
   const today = toDateKey(now)
   const completionCutoff = addDays(today, -COMPLETION_RETENTION_DAYS)

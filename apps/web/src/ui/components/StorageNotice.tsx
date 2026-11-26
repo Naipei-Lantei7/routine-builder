@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAppState } from '../../state/appStateContext'
 
-/** Explains storage problems: unreadable saved data, blocked storage, or a failed save. */
+// Explains storage problems: unreadable saved data, blocked storage, or a failed save.
 export function StorageNotice() {
   const { loadStatus, backupKey, saveError } = useAppState()
   const [dismissed, setDismissed] = useState(false)

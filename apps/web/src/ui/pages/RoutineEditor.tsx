@@ -23,7 +23,7 @@ import { ActivityFields } from '../components/ActivityFields'
 import { Field } from '../components/Field'
 
 interface Props {
-  /** Null to create a new routine. */
+  // Null to create a new routine.
   routineId: string | null
   onDone: () => void
   newId?: () => string

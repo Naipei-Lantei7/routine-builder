@@ -22,7 +22,7 @@ export const WEEKDAY_LONG: Record<Weekday, string> = {
   7: 'Sunday',
 }
 
-/** Human summary of a set of days, e.g. "Every day", "Weekdays", "Mon, Wed, Fri". */
+// Human summary of a set of days, e.g. "Every day", "Weekdays", "Mon, Wed, Fri".
 export function formatDays(days: readonly Weekday[]): string {
   const sorted = [...new Set(days)].sort((a, b) => a - b)
   const key = sorted.join(',')

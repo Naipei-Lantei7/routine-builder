@@ -1,6 +1,6 @@
 import type { AppState, Routine } from './schema'
 
-/** Adds the routine, or replaces the one with the same id in place. */
+// Adds the routine, or replaces the one with the same id in place.
 export function upsertRoutine(state: AppState, routine: Routine): AppState {
   const exists = state.routines.some((r) => r.id === routine.id)
   return {
@@ -11,10 +11,8 @@ export function upsertRoutine(state: AppState, routine: Routine): AppState {
   }
 }
 
-/**
- * Removes a routine. Its completions are kept for history (RFC 0001,
- * section 5.3); views ignore completions whose routine no longer exists.
- */
+// Removes a routine. Its completions are kept for history (RFC 0001,
+// section 5.3); views ignore completions whose routine no longer exists.
 export function deleteRoutine(state: AppState, id: string): AppState {
   return { ...state, routines: state.routines.filter((r) => r.id !== id) }
 }

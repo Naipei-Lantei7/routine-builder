@@ -7,7 +7,7 @@ import { RoutineList } from './ui/pages/RoutineList'
 type View = { name: 'list' } | { name: 'edit'; routineId: string | null }
 
 interface Props {
-  /** Overrides id generation; used by tests. */
+  // Overrides id generation; used by tests.
   newId?: () => string
 }
 

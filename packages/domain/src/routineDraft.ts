@@ -1,23 +1,21 @@
 import { RoutineSchema, type Routine, type Weekday } from './schema'
 import { toMinutes } from './time'
 
-/**
- * Form-friendly version of an activity. Numeric fields are strings so an
- * input can be temporarily empty or invalid while the user types.
- */
+// Form-friendly version of an activity. Numeric fields are strings so an
+// input can be temporarily empty or invalid while the user types.
 export interface ActivityDraft {
   id: string
   title: string
   time: string
-  /** Minutes, or "" for no duration. */
+  // Minutes, or "" for no duration.
   duration: string
   notes: string
-  /** Minutes before, or "none". */
+  // Minutes before, or "none".
   reminder: string
 }
 
 export interface RoutineDraft {
-  /** Undefined until the routine is saved for the first time. */
+  // Undefined until the routine is saved for the first time.
   id?: string
   name: string
   days: Weekday[]
@@ -62,7 +60,7 @@ export function toggleDay(draft: RoutineDraft, day: Weekday): RoutineDraft {
   return { ...draft, days }
 }
 
-/** Appends a blank activity, starting at the same time as the last one. */
+// Appends a blank activity, starting at the same time as the last one.
 export function addActivity(draft: RoutineDraft, id: string): RoutineDraft {
   const last = draft.activities.at(-1)
   const activity: ActivityDraft = {
@@ -91,7 +89,7 @@ export function removeActivity(draft: RoutineDraft, id: string): RoutineDraft {
   return { ...draft, activities: draft.activities.filter((a) => a.id !== id) }
 }
 
-/** Moves an activity one place up (-1) or down (+1). No-op at the ends. */
+// Moves an activity one place up (-1) or down (+1). No-op at the ends.
 export function moveActivity(draft: RoutineDraft, id: string, direction: -1 | 1): RoutineDraft {
   const from = draft.activities.findIndex((a) => a.id === id)
   const to = from + direction
@@ -103,10 +101,8 @@ export function moveActivity(draft: RoutineDraft, id: string, direction: -1 | 1)
 
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 
-/**
- * Sorts activities by time. Stable, so activities at the same time keep
- * their order. Activities with an invalid time go last.
- */
+// Sorts activities by time. Stable, so activities at the same time keep
+// their order. Activities with an invalid time go last.
 export function sortActivitiesByTime(draft: RoutineDraft): RoutineDraft {
   const sortKey = (a: ActivityDraft) =>
     TIME_PATTERN.test(a.time) ? toMinutes(a.time) : Number.POSITIVE_INFINITY
@@ -114,14 +110,14 @@ export function sortActivitiesByTime(draft: RoutineDraft): RoutineDraft {
   return { ...draft, activities }
 }
 
-/** Field path ("name", "days", "activities.0.title") to error message. */
+// Field path ("name", "days", "activities.0.title") to error message.
 export type DraftErrors = Record<string, string>
 
 export type DraftResult = { ok: true; routine: Routine } | { ok: false; errors: DraftErrors }
 
 export interface DraftContext {
   now: Date
-  /** Used only when the draft has no id yet. */
+  // Used only when the draft has no id yet.
   newId: () => string
 }
 
@@ -131,13 +127,13 @@ const VALIDATION_CONTEXT: DraftContext = {
   newId: () => '00000000-0000-4000-8000-000000000000',
 }
 
-/** Field errors for a draft, without building a Routine. Empty when valid. */
+// Field errors for a draft, without building a Routine. Empty when valid.
 export function validateDraft(draft: RoutineDraft): DraftErrors {
   const result = draftToRoutine(draft, VALIDATION_CONTEXT)
   return result.ok ? {} : result.errors
 }
 
-/** Validates a draft and turns it into a Routine ready to save. */
+// Validates a draft and turns it into a Routine ready to save.
 export function draftToRoutine(draft: RoutineDraft, context: DraftContext): DraftResult {
   const errors: DraftErrors = {}
   const timestamp = context.now.toISOString()

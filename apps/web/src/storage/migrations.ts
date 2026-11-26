@@ -2,23 +2,19 @@ import { CURRENT_VERSION } from '@routine-builder/domain'
 
 type StoredData = Record<string, unknown> & { version: number }
 
-/** Upgrades stored data from version N (the key) to N + 1. */
+// Upgrades stored data from version N (the key) to N + 1.
 export type Migration = (data: StoredData) => StoredData
 
-/**
- * Add an entry here whenever the stored shape changes, and bump
- * CURRENT_VERSION. Example: `1: (data) => ({ ...data, version: 2, tags: [] })`.
- */
+// Add an entry here whenever the stored shape changes, and bump
+// CURRENT_VERSION. Example: `1: (data) => ({ ...data, version: 2, tags: [] })`.
 export const MIGRATIONS: Record<number, Migration> = {}
 
 export class MigrationError extends Error {
   override name = 'MigrationError'
 }
 
-/**
- * Brings parsed stored data up to `targetVersion`. Does not validate the
- * result; callers run the schema afterwards.
- */
+// Brings parsed stored data up to `targetVersion`. Does not validate the
+// result; callers run the schema afterwards.
 export function migrate(
   data: unknown,
   migrations: Record<number, Migration> = MIGRATIONS,
