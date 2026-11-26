@@ -69,15 +69,15 @@ any shared API contract package.
 
 ## 4. Tooling
 
-| Concern         | Choice                                                             |
-| --------------- | ------------------------------------------------------------------ |
-| Package manager | pnpm workspaces (`packageManager` pinned in root `package.json`)   |
-| Task runner     | Turborepo: `build`, `lint`, `typecheck`, `test` with caching       |
-| Formatting      | Prettier at the root, for the whole repo                           |
-| Linting         | oxlint, one shared root config, run per package through Turborepo  |
-| Routing         | TanStack Router with the Vite plugin generating `routeTree.gen.ts` |
-| Styling         | Tailwind CSS v4, shadcn/ui, HSL color tokens, light and dark mode  |
-| CI              | `pnpm install --frozen-lockfile`, format check, then `turbo run`   |
+| Concern         | Choice                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------ |
+| Package manager | pnpm workspaces (`packageManager` pinned in root `package.json`)                                 |
+| Task runner     | Turborepo: `build`, `lint`, `typecheck`, `test` with caching                                     |
+| Formatting      | Prettier at the root, for the whole repo                                                         |
+| Linting         | oxlint, one shared root config, run per package through Turborepo                                |
+| Routing         | TanStack Router with the Vite plugin generating `routeTree.gen.ts`                               |
+| Styling         | Tailwind CSS v4, shadcn/ui, OKLCH color tokens (the current shadcn default), light and dark mode |
+| CI              | `pnpm install --frozen-lockfile`, format check, then `turbo run`                                 |
 
 Common commands:
 
