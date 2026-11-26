@@ -1,12 +1,24 @@
 import { Button } from '@routine-builder/ui/components/button'
 import { BellOff, BellRing } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { isIos, isStandalone } from '../../pwa/install'
 import { useReminders } from '../../notifications/remindersContext'
 
 // Explains the reminder state and asks for notification permission, but only
 // when the user clicks: never on page load.
 export function ReminderControls() {
   const { permission, enable } = useReminders()
+  const [iosBrowser] = useState(() => isIos() && !isStandalone())
+
+  // Safari on iPhone only allows notifications for apps added to the Home Screen.
+  if (iosBrowser) {
+    return (
+      <Note icon={<BellOff className="size-4" aria-hidden="true" />}>
+        On iPhone, reminders work once Routine Builder is on your Home Screen. Until then, they
+        appear on this page while it is open.
+      </Note>
+    )
+  }
 
   if (permission === 'granted') {
     return (
