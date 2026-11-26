@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react'
+import { flushSync } from 'react-dom'
 import { deleteRoutine, upsertRoutine } from '../../domain/appState'
 import { WEEKDAYS, WEEKDAY_LONG, WEEKDAY_SHORT } from '../../domain/days'
 import {
@@ -54,11 +55,11 @@ export function RoutineEditor({ routineId, onDone, newId = () => crypto.randomUU
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    setSubmitted(true)
     const outcome = draftToRoutine(draft, { now: new Date(), newId })
     if (!outcome.ok) {
-      // Wait for the summary to render, then move focus to it.
-      requestAnimationFrame(() => errorSummaryRef.current?.focus())
+      // Render the error summary synchronously so it exists to receive focus.
+      flushSync(() => setSubmitted(true))
+      errorSummaryRef.current?.focus()
       return
     }
     update((s) => upsertRoutine(s, outcome.routine))
@@ -67,9 +68,9 @@ export function RoutineEditor({ routineId, onDone, newId = () => crypto.randomUU
 
   function handleAddActivity() {
     const id = newId()
-    setDraft((d) => addActivity(d, id))
-    // Focus the new activity's title once it has rendered.
-    requestAnimationFrame(() => document.getElementById(`activity-${id}-title`)?.focus())
+    // Render the new activity synchronously so its title can take focus.
+    flushSync(() => setDraft((d) => addActivity(d, id)))
+    document.getElementById(`activity-${id}-title`)?.focus()
   }
 
   function handleDelete() {

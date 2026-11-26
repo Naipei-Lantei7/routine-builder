@@ -148,6 +148,7 @@ describe('creating a routine', () => {
     await user.click(screen.getByRole('button', { name: 'Save routine' }))
 
     expect(screen.getByRole('alert')).toHaveTextContent('Fix 2 problems before saving.')
+    expect(screen.getByRole('alert')).toHaveFocus()
     expect(screen.getByLabelText('Name')).toHaveAccessibleDescription('Give the routine a name')
     expect(screen.getByLabelText('Title')).toHaveAccessibleDescription('Give the activity a title')
     expect(stored()).toBeNull()
