@@ -31,15 +31,15 @@ notifications a few minutes before each activity.
 
 ## Tech stack
 
-| Area      | Tools                                                                |
-| --------- | -------------------------------------------------------------------- |
-| App       | React 19, TypeScript (strict), Vite                                  |
-| Routing   | TanStack Router with file-based routes                               |
-| UI        | shadcn/ui (Radix primitives) on Tailwind CSS v4, in a shared package |
-| Data      | Zod schemas as the single source of types and runtime validation     |
-| Monorepo  | pnpm workspaces and Turborepo                                        |
-| Quality   | Vitest, Testing Library, oxlint, Prettier                            |
-| CI and CD | GitHub Actions on every pull request, Vercel for hosting             |
+| Area      | Tools                                                                    |
+| --------- | ------------------------------------------------------------------------ |
+| App       | React 19, TypeScript (strict), Vite                                      |
+| Routing   | TanStack Router with file-based routes                                   |
+| UI        | shadcn/ui (Radix primitives) on Tailwind CSS v4, in a shared package     |
+| Data      | Zod schemas as the single source of types and runtime validation         |
+| Monorepo  | pnpm workspaces and Turborepo                                            |
+| Quality   | Vitest, Testing Library, oxlint, Prettier                                |
+| CI and CD | GitHub Actions on every pull request, Cloudflare (free plan) for hosting |
 
 ## Architecture
 
@@ -103,13 +103,30 @@ such as reminders that fall before midnight and both daylight-saving days. The w
 tested end to end with Testing Library: tests render the real router at a URL, use the
 real storage, fix the clock, and stand in for the browser's Notification API.
 
+## Install it on your phone
+
+Routine Builder is a Progressive Web App: it installs like a regular app and opens
+offline.
+
+- **Android (Chrome, Edge, Samsung Internet):** open the site and tap **Install** on the
+  Today page, or use the browser menu's **Install app**.
+- **iPhone and iPad:** open the site in Safari, tap **Share**, then **Add to Home Screen**.
+  Notifications on iOS only work from the installed app (iOS 16.4 or later).
+
 ## Deployment
 
-The app is a static site. `vercel.json` tells Vercel how to install and build the monorepo
-and sends every route to `index.html`, so links like `/routines` work on reload.
+The app is hosted on Cloudflare's free plan as static assets served by a Worker
+(`apps/web/wrangler.jsonc`). Unknown paths serve `index.html`, so links like `/routines`
+work on reload, and `public/_headers` sets caching: the service worker and manifest are
+always re-checked, hashed build files are cached for a year.
 
-To deploy your own copy: import the repository in Vercel and keep the defaults. Vercel
-reads the settings from `vercel.json`.
+```bash
+pnpm --filter @routine-builder/web exec wrangler login   # once, opens Cloudflare in the browser
+pnpm --filter @routine-builder/web deploy                # build and upload
+```
+
+To deploy on every push to `main` instead, connect the repository in the Cloudflare
+dashboard (Workers Builds) and point it at `apps/web`.
 
 ## How this project is built
 
@@ -119,10 +136,13 @@ format, lint, typecheck, tests and build on every pull request.
 
 ## Limitations and roadmap
 
-Today, data lives in one browser and reminders only fire while the app is open in a tab.
-Next up:
+Today, data lives in one browser and reminders only fire while the app is open. Next up,
+following [Plan 003](docs/plans/003-free-backend-and-push.md), all on free tiers:
 
-- **Streaks and history**, built from the completions already being recorded.
-- **A timer** for activities with a duration.
-- **A backend** (NestJS, PostgreSQL, BullMQ and Web Push) so routines sync across devices
-  and reminders arrive even when the app is closed. See Plan 001, section 8.
+- **An API on Cloudflare Workers** with a D1 (SQLite) database, so routines sync between
+  your phone and laptop.
+- **Sign-in** with a one-time code sent by email.
+- **Push reminders** sent by a scheduler that runs every minute, so they arrive even when
+  the app is closed.
+
+After that: streaks and history, and a timer for activities with a duration.
