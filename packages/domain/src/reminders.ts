@@ -77,7 +77,8 @@ export function markRemindersFired(state: AppState, keys: readonly string[]): Ap
 
 // Notification text, e.g. title "Stretch in 5 min", body "Morning · 07:15".
 export function reminderMessage(reminder: DueReminder, now: Date): { title: string; body: string } {
-  const minutes = Math.round((reminder.start.getTime() - now.getTime()) / 60_000)
+  // Rounded up, matching the "Next · in N min" badge in the Today view.
+  const minutes = Math.ceil((reminder.start.getTime() - now.getTime()) / 60_000)
   const when =
     minutes <= 0 ? 'now' : minutes < 60 ? `in ${minutes} min` : `in ${formatHours(minutes)}`
   return {

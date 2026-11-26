@@ -177,6 +177,11 @@ describe('reminderMessage', () => {
     })
   })
 
+  it('rounds partial minutes up', () => {
+    const now = new Date(at(26, 7, 13).getTime() + 30_000) // 07:13:30, 1.5 min to go
+    expect(reminderMessage(due, now).title).toBe('Stretch in 2 min')
+  })
+
   it('says "starts now" at the start time', () => {
     expect(reminderMessage(due, at(26, 7, 15)).title).toBe('Stretch starts now')
   })
