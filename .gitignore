@@ -26,3 +26,6 @@ dist-ssr
 # Turborepo
 .turbo
 .vite
+
+# Cloudflare Wrangler local state
+.wrangler

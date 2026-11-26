@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Static-only for now: Cloudflare serves the built app. Plan 003 adds the API
+  // to this Worker later, on the same origin.
+  "name": "routine-builder",
+  "compatibility_date": "2026-11-01",
+  // Do not send Wrangler usage telemetry from this project.
+  "send_metrics": false,
+  "assets": {
+    "directory": "./dist",
+    // Unknown paths serve index.html so client-side routes like /routines load on refresh.
+    "not_found_handling": "single-page-application",
+  },
+}

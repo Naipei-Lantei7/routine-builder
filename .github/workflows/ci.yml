@@ -23,3 +23,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm turbo run lint typecheck test build
+      # Validates the Cloudflare config against the build without deploying.
+      - run: pnpm --filter @routine-builder/web exec wrangler deploy --dry-run
+        env:
+          WRANGLER_SEND_METRICS: 'false'
