@@ -6,6 +6,7 @@ import { vi } from 'vitest'
 import { AuthProvider } from '../auth/AuthProvider'
 import { createAppRouter } from '../router'
 import { AppStateProvider } from '../state/AppStateProvider'
+import { SyncProvider } from '../sync/SyncProvider'
 import { STORAGE_KEY, createLocalStorageRepository } from '../storage/localStorageRepository'
 
 export interface ApiCall {
@@ -54,7 +55,9 @@ export async function renderApp(path = '/', routes: ApiRoutes = {}) {
   render(
     <AuthProvider>
       <AppStateProvider repository={repository}>
-        <RouterProvider router={router} />
+        <SyncProvider>
+          <RouterProvider router={router} />
+        </SyncProvider>
       </AppStateProvider>
     </AuthProvider>,
   )

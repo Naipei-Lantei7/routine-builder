@@ -14,6 +14,11 @@ export interface AppStateValue {
   update: (updater: (state: AppState) => AppState) => void
   // Re-reads stored state (picking up other tabs' changes immediately) and returns it.
   refresh: () => AppState
+  // Applies and saves a change that came from the server: listeners are not told,
+  // so it is not sent back as a new local change.
+  replace: (updater: (state: AppState) => AppState) => void
+  // Called after every local change made with update(). Returns an unsubscribe function.
+  subscribe: (listener: (prev: AppState, next: AppState) => void) => () => void
 }
 
 export const AppStateContext = createContext<AppStateValue | null>(null)

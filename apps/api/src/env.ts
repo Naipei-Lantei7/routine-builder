@@ -13,4 +13,6 @@ export interface Env {
   EMAIL_FROM?: string
 }
 
-export type AppEnv = { Bindings: Env }
+import type { SessionUser } from './auth/session'
+
+export type AppEnv = { Bindings: Env; Variables: { user: SessionUser } }

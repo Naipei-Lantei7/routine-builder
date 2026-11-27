@@ -27,8 +27,9 @@ notifications a few minutes before each activity.
   If notifications are off, reminders appear on the page instead.
 - **Editor.** Add, reorder, sort by time and remove activities, with errors shown next to
   the fields they belong to.
-- **No account needed.** Data stays in your browser and is validated on every load. If
-  stored data is ever unreadable, it is backed up instead of being overwritten.
+- **Works without an account, syncs with one.** Data is kept on the device, so the app
+  opens instantly and works offline. Sign in with an emailed code to sync routines
+  across your devices; changes made offline are sent when you are back online.
 - **Light and dark themes**, following your system setting or chosen in the header, and
   every action works from the keyboard.
 
@@ -173,12 +174,9 @@ format, lint, typecheck, tests and build on every pull request.
 
 ## Limitations and roadmap
 
-Today, data lives in one browser and reminders only fire while the app is open. Next up,
-following [Plan 003](docs/plans/003-free-backend-and-push.md), all on free tiers:
+Reminders currently fire only while the app is open. Next up, following
+[Plan 003](docs/plans/003-free-backend-and-push.md) and still on free tiers:
 
-- **An API on Cloudflare Workers** with a D1 (SQLite) database, so routines sync between
-  your phone and laptop.
-- **Sign-in** with a one-time code sent by email.
 - **Push reminders** sent by a scheduler that runs every minute, so they arrive even when
   the app is closed.
 

@@ -166,15 +166,33 @@ different sign-in method; see open questions.
 
 ## 9. Sync
 
-- The server is the source of truth for signed-in users. A new `ApiRepository`
-  implements the existing `RoutineRepository` interface, so pages do not change.
-- `localStorage` stays as a cache so the app opens instantly and shows the last data
-  when offline. Editing requires a connection in this version.
-- Concurrent edits from two devices: last write wins per routine, using `updatedAt`.
-- On first sign-in, routines already in the browser are uploaded, so nothing created
-  before sign-in is lost.
-- Signed-out use keeps working exactly as today, with in-tab reminders. When a device
-  has a push subscription, in-tab reminders turn off to avoid duplicates.
+Local-first with an outbox. (The first draft of this plan proposed an `ApiRepository`
+behind the existing repository interface; that interface is synchronous, so every edit
+would have waited on the network. The outbox keeps edits instant and works offline.)
+
+- **Edits apply locally first.** The app keeps `localStorage` as its working copy, so it
+  opens instantly and works offline. While signed in, every change is also recorded as
+  operations (`putRoutine`, `deleteRoutine`, `setCompletion`, shared in
+  `packages/domain`) in a per-user outbox in `localStorage`.
+- **Sending.** The outbox is sent to `POST /api/sync` shortly after an edit, on app start,
+  when the app regains focus, when the device comes back online, and every minute (which
+  also pulls changes made on other devices). The server applies the operations and
+  answers with the user's full state, which replaces the local copy. Operations queued
+  during the request are sent in the same sync, and any still waiting are replayed on top.
+  Web Locks keep tabs from syncing at the same time.
+- **Conflicts.** Last write wins per routine, by `updatedAt`. A delete followed by an
+  older edit from an offline device brings the routine back; acceptable for one person's
+  devices, revisit with tombstones if sharing is added.
+- **First sign-in on a device** uploads routines already on it. A device that has synced
+  with one account does not upload leftovers into another account.
+- **Signing out** sends pending changes if possible (anything unsent stays in that user's
+  outbox for next time), then clears the device's copy.
+- **Free-plan limits.** D1 allows 50 queries per request on the free plan, but a batch
+  counts as one. A push looks up the routines it touches in chunks of 90 ids (D1 allows
+  100 bound parameters), then applies all writes in one atomic batch: about 10 queries
+  for up to 500 operations.
+- Signed-out use keeps working exactly as before, with in-tab reminders. When a device
+  has a push subscription, in-tab reminders turn off to avoid duplicates (PR 5).
 
 ## 10. Delivery
 

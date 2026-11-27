@@ -1,8 +1,12 @@
 import { act, screen, waitFor } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderApp, type ApiRoutes } from './test/utils'
 
 const USER = { id: 'u1', email: 'me@example.com', timeZone: 'Africa/Nairobi' }
+
+beforeEach(() => {
+  localStorage.clear()
+})
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -50,6 +54,22 @@ describe('header', () => {
 
     expect(await screen.findByRole('link', { name: 'Sign in' })).toBeInTheDocument()
     expect(api.calls.map((call) => call.path)).toContain('/api/auth/session')
+  })
+
+  it('remembers who is signed in when starting offline', async () => {
+    localStorage.setItem('routine-builder:user', JSON.stringify(USER))
+    await renderApp('/', {
+      'GET /api/auth/session': () => {
+        throw new TypeError('Failed to fetch')
+      },
+      'GET /api/sync': () => {
+        throw new TypeError('Failed to fetch')
+      },
+    })
+
+    expect(
+      await screen.findByRole('button', { name: 'Account: me@example.com' }),
+    ).toBeInTheDocument()
   })
 })
 

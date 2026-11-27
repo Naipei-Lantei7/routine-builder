@@ -7,6 +7,7 @@ import { mailerFromEnv, EmailNotConfiguredError } from './auth/mailer'
 import { authRoutes, type AuthDeps } from './auth/routes'
 import type { AppEnv } from './env'
 import { sameOrigin } from './middleware/sameOrigin'
+import { syncRoutes } from './sync/routes'
 
 export type AppOptions = Partial<AuthDeps>
 
@@ -36,6 +37,7 @@ export function createApp(options: AppOptions = {}) {
   })
 
   app.route('/auth', authRoutes(deps))
+  app.route('/sync', syncRoutes(deps.now))
 
   app.notFound((c) => c.json({ error: 'not_found', message: 'No such API route.' }, 404))
 
