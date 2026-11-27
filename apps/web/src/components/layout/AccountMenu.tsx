@@ -8,12 +8,14 @@ import {
   DropdownMenuTrigger,
 } from '@routine-builder/ui/components/dropdown-menu'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { LogOut } from 'lucide-react'
+import { Cloud, CloudOff, LogOut, RefreshCw, TriangleAlert } from 'lucide-react'
 import { useAuth } from '../../auth/authContext'
+import { useSync, type SyncStatus } from '../../sync/syncContext'
 
 // "Sign in" when signed out; the account's initial with a menu when signed in.
 export function AccountMenu() {
-  const { status, user, signOut } = useAuth()
+  const { status, user } = useAuth()
+  const sync = useSync()
   const navigate = useNavigate()
 
   if (status === 'loading') return null
@@ -49,9 +51,11 @@ export function AccountMenu() {
           <p className="truncate text-sm font-medium">{user.email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <SyncStatusItem status={sync.status} pending={sync.pending} onRetry={sync.syncNow} />
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={() => {
-            void signOut().then(() => navigate({ to: '/' }))
+            void sync.signOut().then(() => navigate({ to: '/' }))
           }}
         >
           <LogOut aria-hidden="true" />
@@ -59,5 +63,43 @@ export function AccountMenu() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+const STATUS: Record<SyncStatus, { icon: typeof Cloud; text: string }> = {
+  local: { icon: CloudOff, text: 'Saved on this device' },
+  syncing: { icon: RefreshCw, text: 'Syncing…' },
+  synced: { icon: Cloud, text: 'Synced' },
+  offline: { icon: CloudOff, text: 'Offline. Changes will sync later' },
+  error: { icon: TriangleAlert, text: 'Sync failed' },
+}
+
+function SyncStatusItem({
+  status,
+  pending,
+  onRetry,
+}: {
+  status: SyncStatus
+  pending: number
+  onRetry: () => Promise<void>
+}) {
+  const { icon: Icon, text } = STATUS[status]
+  const canRetry = status === 'offline' || status === 'error'
+  return (
+    <DropdownMenuItem
+      disabled={!canRetry}
+      onSelect={(event) => {
+        // Keep the menu open to show the result.
+        event.preventDefault()
+        void onRetry()
+      }}
+    >
+      <Icon className={status === 'syncing' ? 'animate-spin' : undefined} aria-hidden="true" />
+      <span className="flex-1">{text}</span>
+      {pending > 0 && status !== 'synced' && (
+        <span className="text-xs text-muted-foreground">{pending} waiting</span>
+      )}
+      {canRetry && <span className="text-xs text-muted-foreground">Retry</span>}
+    </DropdownMenuItem>
   )
 }

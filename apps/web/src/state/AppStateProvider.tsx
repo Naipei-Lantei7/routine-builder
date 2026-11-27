@@ -16,6 +16,7 @@ export function AppStateProvider({ repository, children }: Props) {
   // The latest state, so consecutive updates in one event build on each other
   // and saving stays outside React's state updater (which may run twice).
   const stateRef = useRef(state)
+  const listeners = useRef(new Set<(prev: AppState, next: AppState) => void>())
 
   useEffect(
     () =>
@@ -26,9 +27,10 @@ export function AppStateProvider({ repository, children }: Props) {
     [repository],
   )
 
-  const update = useCallback(
-    (updater: (state: AppState) => AppState) => {
-      const next = updater(stateRef.current)
+  const commit = useCallback(
+    (updater: (state: AppState) => AppState): { prev: AppState; next: AppState } => {
+      const prev = stateRef.current
+      const next = updater(prev)
       stateRef.current = next
       setState(next)
       try {
@@ -37,9 +39,32 @@ export function AppStateProvider({ repository, children }: Props) {
       } catch (error) {
         setSaveError(error instanceof Error ? error.message : String(error))
       }
+      return { prev, next }
     },
     [repository],
   )
+
+  const update = useCallback(
+    (updater: (state: AppState) => AppState) => {
+      const { prev, next } = commit(updater)
+      if (prev !== next) listeners.current.forEach((listener) => listener(prev, next))
+    },
+    [commit],
+  )
+
+  const replace = useCallback(
+    (updater: (state: AppState) => AppState) => {
+      commit(updater)
+    },
+    [commit],
+  )
+
+  const subscribe = useCallback((listener: (prev: AppState, next: AppState) => void) => {
+    listeners.current.add(listener)
+    return () => {
+      listeners.current.delete(listener)
+    }
+  }, [])
 
   const refresh = useCallback(() => {
     const result = repository.load()
@@ -59,8 +84,10 @@ export function AppStateProvider({ repository, children }: Props) {
       saveError,
       update,
       refresh,
+      replace,
+      subscribe,
     }),
-    [state, initial, saveError, update, refresh],
+    [state, initial, saveError, update, refresh, replace, subscribe],
   )
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>

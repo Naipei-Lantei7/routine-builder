@@ -7,6 +7,7 @@ import { registerServiceWorker } from './pwa/registerServiceWorker'
 import { AuthProvider } from './auth/AuthProvider'
 import { createAppRouter } from './router'
 import { AppStateProvider } from './state/AppStateProvider'
+import { SyncProvider } from './sync/SyncProvider'
 import { createLocalStorageRepository } from './storage/localStorageRepository'
 
 registerServiceWorker()
@@ -19,7 +20,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
       <AppStateProvider repository={repository}>
-        <RouterProvider router={router} />
+        <SyncProvider>
+          <RouterProvider router={router} />
+        </SyncProvider>
       </AppStateProvider>
     </AuthProvider>
   </StrictMode>,

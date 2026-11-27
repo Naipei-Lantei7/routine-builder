@@ -11,7 +11,8 @@ function SignInPage() {
     <div className="space-y-6">
       <SignInForm onSignedIn={() => navigate({ to: '/' })} />
       <p className="mx-auto max-w-sm text-center text-sm text-muted-foreground">
-        Your routines stay on this device for now. Syncing between your devices is coming next.
+        Signing in keeps your routines in sync across your devices. Routines already on this device
+        are added to your account.
       </p>
     </div>
   )

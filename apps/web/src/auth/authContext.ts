@@ -11,7 +11,8 @@ export type AuthStatus =
   | 'loading'
   | 'signed-in'
   | 'signed-out'
-  // The server could not be reached (offline): the app keeps working locally.
+  // The server could not be reached (offline). `user` is the last known user, if any,
+  // and the app keeps working locally.
   | 'unavailable'
 
 export interface AuthValue {
@@ -20,6 +21,8 @@ export interface AuthValue {
   requestCode: (email: string) => Promise<void>
   verifyCode: (email: string, code: string) => Promise<User>
   signOut: () => Promise<void>
+  // Called when the API says the session is no longer valid.
+  sessionEnded: () => void
 }
 
 export const AuthContext = createContext<AuthValue | null>(null)
